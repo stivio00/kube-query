@@ -32,17 +32,29 @@ kq overview                  # whole-cluster snapshot, problems first
 
 ## Install
 
-Requires Python 3.13+.
+Requires Python 3.13+. The PyPI package is **`kubeq`** — it provides the `kq`
+command (`kube-query` and `kubeq` work too). Note: `uvx kq` / `pipx install kq`
+install an **unrelated** Kafka library that owns the `kq` name on PyPI — always
+use `kubeq`.
 
 ```bash
-pipx install kubeq              # or: uv tool install kubeq / uvx kubeq
+# one-off, no install
+uvx kubeq overview
+
+# permanent: puts kq (and kube-query, kubeq) on PATH
+uv tool install kubeq
+
+# alternatives
+pipx install kubeq
+pip install kubeq
+
 kq ctx ls                        # verify — reads your existing kubeconfig
 ```
 
 From source:
 
 ```bash
-git clone <repo> && cd kube-query
+git clone https://github.com/stivio00/kube-query && cd kube-query
 make setup                       # .venv (py3.13) + dev deps
 .venv/bin/kq overview
 ```

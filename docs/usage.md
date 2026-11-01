@@ -6,6 +6,9 @@ compact formats designed for both humans and AI agents. It only ever sends
 `GET` requests to the API server.
 
 - Binary names: `kq` / `kube-query` / `kubeq` (same program)
+- Install: `uv tool install kubeq` (permanent) or `uvx kubeq` (one-off) —
+  the PyPI project is **`kubeq`**; the `kq` name on PyPI is an unrelated
+  Kafka library
 - Output default: **compact YAML**; `-o json | rich | md | tree`
 - Cluster selection: standard kubeconfig (`KUBECONFIG` env), `--kubeconfig`, `--ctx`
 - RBAC: whatever your user/service-account can read, kq can show — nothing more

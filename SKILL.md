@@ -3,6 +3,9 @@
 name: kube-query
 description: Read-only Kubernetes triage CLI. Use kq to capture cluster state and diagnose problems (pods, deployments, events, logs, helm, CRDs). Fixing happens with other tools — kq can never mutate the cluster.
 
+Install (PyPI project is `kubeq` — not `kq`, which is an unrelated Kafka lib):
+`uv tool install kubeq` (permanent) or `uvx kubeq` (one-off). Provides `kq`.
+
 ## What this tool is for
 
 kq answers "what is the state of the cluster and why is it unhealthy?" — nothing else.
