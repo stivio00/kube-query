@@ -3,8 +3,8 @@ requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "kube-query"
-version = "0.1.0"
+name = "kubeq"
+version = "0.1.1"
 description = "Read-only Kubernetes query CLI - compact YAML/JSON/rich/markdown output, built for humans and AI agents"
 readme = "README.md"
 license = "MIT"
@@ -32,8 +32,9 @@ dependencies = [
 dev = ["pytest>=8"]
 
 [project.scripts]
-kube-query = "kube_query.cli:main"
 kq = "kube_query.cli:main"
+kube-query = "kube_query.cli:main"
+kubeq = "kube_query.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

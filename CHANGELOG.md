@@ -4,9 +4,23 @@ All notable changes to kube-query are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versioning follows SemVer.
 
+## [0.1.1] — 2026-11-01
+
+### Changed
+- **PyPI distribution renamed to `kubeq`** so `uvx kubeq` / `pipx install kubeq`
+  work directly (the short `kq` project name on PyPI belongs to an unrelated
+  Kafka library). The CLI is unchanged; the wheel now provides three
+  equivalent entry points: `kq`, `kube-query`, `kubeq`.
+- The original `kube-query` 0.1.0 release remains on PyPI as the first
+  published artifact; `kubeq` is the canonical distribution going forward.
+
+### Added
+- `kubeq` console script (alias of `kq`).
+- CI smoke-checks all three installed entry points.
+
 ## [0.1.0] — 2026-11-01
 
-First public release.
+First public release (published to PyPI as `kube-query`).
 
 ### Added
 - Read-only core (GET-only HTTP layer) with kubeconfig/in-cluster auth:

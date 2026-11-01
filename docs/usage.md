@@ -1,11 +1,11 @@
 # kube-query usage manual
 
-`kq` (also installed as `kube-query`) is a **read-only** Kubernetes query CLI.
+`kq` (PyPI package: `kubeq`; also runnable as `kube-query`/`kubeq`) is a **read-only** Kubernetes query CLI.
 It answers *what is the state of the cluster and why is it unhealthy*, in
 compact formats designed for both humans and AI agents. It only ever sends
 `GET` requests to the API server.
 
-- Binary names: `kq` / `kube-query` (same program)
+- Binary names: `kq` / `kube-query` / `kubeq` (same program)
 - Output default: **compact YAML**; `-o json | rich | md | tree`
 - Cluster selection: standard kubeconfig (`KUBECONFIG` env), `--kubeconfig`, `--ctx`
 - RBAC: whatever your user/service-account can read, kq can show — nothing more

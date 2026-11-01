@@ -35,7 +35,7 @@ kq overview                  # whole-cluster snapshot, problems first
 Requires Python 3.13+.
 
 ```bash
-pipx install kube-query          # or: uv tool install kube-query
+pipx install kubeq              # or: uv tool install kubeq / uvx kubeq
 kq ctx ls                        # verify — reads your existing kubeconfig
 ```
 

@@ -42,6 +42,7 @@ jobs:
           kq --version
           kq --help
           kube-query --help
+          kubeq --version
 
       - uses: actions/upload-artifact@v7
         with:
