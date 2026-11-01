@@ -1,0 +1,49 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: lint + test + build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]" ruff build
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Format check
+        run: ruff format --check .
+
+      - name: Test (unit + fake-API smoke)
+        run: pytest
+
+      - name: Build distributions
+        run: python -m build
+
+      - name: Smoke the built wheel
+        run: |
+          pip install dist/*.whl
+          kq --version
+          kq --help
+          kube-query --help
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
