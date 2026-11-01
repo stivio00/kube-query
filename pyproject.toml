@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kubeq"
-version = "0.1.1"
+dynamic = ["version"]
 description = "Read-only Kubernetes query CLI - compact YAML/JSON/rich/markdown output, built for humans and AI agents"
 readme = "README.md"
 license = "MIT"
@@ -38,6 +38,9 @@ kubeq = "kube_query.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.dynamic]
+version = { attr = "kube_query.__version__" }
 
 [tool.setuptools.package-data]
 kube_query = ["py.typed"]
