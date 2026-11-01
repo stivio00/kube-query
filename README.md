@@ -1,11 +1,7 @@
-<p align="center">
-  <img src="docs/img/logo.png" width="360" alt="kube-query logo">
-</p>
+# kube-query
 
-<h1 align="center">kube-query</h1>
-
-<p align="center"><b>Read-only Kubernetes queries for humans and AI agents.</b><br>
-kubectl for diagnosis — without the ability to break anything.</p>
+**Read-only Kubernetes queries for humans and AI agents.**
+kubectl for diagnosis — without the ability to break anything.
 
 ---
 
