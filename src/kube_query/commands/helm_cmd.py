@@ -1,4 +1,4 @@
-"""`kq helm` — Helm releases decoded from the cluster's release Secrets (read-only)."""
+"""`kube-query helm` — Helm releases decoded from the cluster's release Secrets (read-only)."""
 
 from __future__ import annotations
 

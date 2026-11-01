@@ -60,7 +60,7 @@ def raw_get(api_client: Any, path: str, params: dict | None = None) -> tuple[int
         raise
     except Exception as e:  # connection refused, TLS errors, timeouts, ...
         raise KqError(
-            f"request failed (GET {path}): {e}\n  Hint: check the context/cluster (kq ctx) and network reachability."
+            f"request failed (GET {path}): {e}\n  Hint: check the context/cluster (kube-query ctx) and network reachability."
         ) from None
     if status >= 400:
         message = _status_message(data)

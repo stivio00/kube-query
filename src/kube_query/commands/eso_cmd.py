@@ -1,4 +1,4 @@
-"""`kq eso` — External Secrets Operator health: ExternalSecrets and SecretStores."""
+"""`kube-query eso` — External Secrets Operator health: ExternalSecrets and SecretStores."""
 
 from __future__ import annotations
 

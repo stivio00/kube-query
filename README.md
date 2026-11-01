@@ -1,6 +1,6 @@
 # kube-query
 
-**`kq` — read-only Kubernetes queries for humans and AI agents.**
+**`kube-query` — read-only Kubernetes queries for humans and AI agents.**
 
 kubectl is a loaded gun in an agent's hands. kube-query is the safe scope:
 it **captures cluster state and diagnoses problems**, and *cannot* create,
@@ -10,14 +10,14 @@ trees on request. Built-ins, shortnames, CRDs, Helm releases and External
 Secrets Operator — one small, fast binary-ish CLI.
 
 ```
-kq p l -A                    # all pods, all namespaces
-kq p desc web-5d9c6 -n prod  # status + reasons + restarts + events, one doc
-kq logs web-5d9c6 -n prod -c app --previous
-kq tree deploy/web -n prod   # Deployment -> ReplicaSet -> Pods, health per node
-kq overview                  # whole-cluster snapshot, problems first
+kube-query p l -A                    # all pods, all namespaces
+kube-query p desc web-5d9c6 -n prod  # status + reasons + restarts + events, one doc
+kube-query logs web-5d9c6 -n prod -c app --previous
+kube-query tree deploy/web -n prod   # Deployment -> ReplicaSet -> Pods, health per node
+kube-query overview                  # whole-cluster snapshot, problems first
 ```
 
-> kq is the **diagnosis** half of the loop. The **fix** half belongs to other
+> kube-query is the **diagnosis** half of the loop. The **fix** half belongs to other
 > tools (kubectl apply, gitops, helm) — by design.
 
 ## Why
@@ -27,36 +27,33 @@ kq overview                  # whole-cluster snapshot, problems first
 | can `delete`/`scale`/`apply` — one hallucinated flag away from an incident | GET-only; no mutating code path exists |
 | `-o yaml` dumps managedFields/uid/annotations noise into context | compact by default, `-v`/`-vv` for more |
 | output shaped for terminals, not reasoning | yaml/json data, md reports, tree views |
-| 100+ verbs to misuse | ~15 read verbs with aliases (`kq p l`, `kq d l`, `kq c l`) |
+| 100+ verbs to misuse | ~15 read verbs with short aliases (`p l`, `d l`, `c l`) |
 | helm/ESO/CRD troubleshooting needs extra tools | helm releases, ESO status and CRDs built in |
 
 ## Install
 
-Requires Python 3.13+. The PyPI package is **`kubeq`** — it provides the `kq`
-command (`kube-query` and `kubeq` work too). Note: `uvx kq` / `pipx install kq`
-install an **unrelated** Kafka library that owns the `kq` name on PyPI — always
-use `kubeq`.
+Requires Python 3.13+. The PyPI package is **`kube-query`** and it installs a
+single command: `kube-query`. (There is deliberately no short `kq` executable —
+that name on PyPI belongs to an unrelated Kafka library, and PyPI's
+similarity rules block close variants like `kubeq`. Alias it if you want it
+short: `alias kq=kube-query`.)
 
 ```bash
-# one-off, no install
-uvx kubeq overview
+uvx kube-query overview             # one-off, no install
+uv tool install kube-query          # permanent
+pipx install kube-query             # alternatives
+pip install kube-query
 
-# permanent: puts kq (and kube-query, kubeq) on PATH
-uv tool install kubeq
-
-# alternatives
-pipx install kubeq
-pip install kubeq
-
-kq ctx ls                        # verify — reads your existing kubeconfig
+kube-query ctx ls                   # verify — reads your existing kubeconfig
+alias kq=kube-query                 # optional short form
 ```
 
 From source:
 
 ```bash
 git clone https://github.com/stivio00/kube-query && cd kube-query
-make setup                       # .venv (py3.13) + dev deps
-.venv/bin/kq overview
+make setup                          # .venv (py3.13) + dev deps
+.venv/bin/kube-query overview
 ```
 
 No cluster to try it on? `make demo` boots a fake API server with broken
@@ -66,19 +63,19 @@ pods, a stuck deployment, helm releases and ESO resources to poke at.
 
 | Command (aliases) | Purpose |
 |---|---|
-| `kq overview` (`ov`, `o`, `health`) | cluster snapshot: problem pods, nodes, deployments, PVCs, warnings |
-| `kq pod` (`pods`, `p`, `po`) | `l [REGEX] [-A\|-n\|-l\|--field-selector]` · `NAME` · `desc NAME` · `logs NAME` |
-| `kq deploy` (`deployments`, `dep`, `d`) | same shape for deployments |
-| `kq ns` (`n`) · `kq node` (`no`) · `kq svc` · `kq cm` | namespaces, nodes, services, configmaps |
-| `kq secret` (`sec`) | values hidden; `kq sec NAME --reveal` decodes (explicit opt-in) |
-| `kq ev` (`events`, `e`) | events, newest first: `--type Warning --since 2h --for pod/NAME` |
-| `kq get RESOURCE[/NAME]` (`g`) | any resource incl. CRDs; `kq api` lists all types |
-| `kq describe` (`desc`) | diagnosis bundle: summary + object + children + events |
-| `kq tree RESOURCE/NAME` (`t`) | ownership tree (`deploy/web`, `cronjob/x`, `node/y`) |
-| `kq helm` (`h`) | releases read-only from Helm's release Secrets; `show NAME` adds values |
-| `kq eso` | ExternalSecret sync status (`--stores` for SecretStores) |
-| `kq ctx` (`c`) | kubeconfig contexts (`kq c l`), no API calls |
-| `kq ver` | client + server version (which cluster am I on?) |
+| `kube-query overview` (`ov`, `o`, `health`) | cluster snapshot: problem pods, nodes, deployments, PVCs, warnings |
+| `kube-query pod` (`pods`, `p`, `po`) | `l [REGEX] [-A\|-n\|-l\|--field-selector]` · `NAME` · `desc NAME` · `logs NAME` |
+| `kube-query deploy` (`deployments`, `dep`, `d`) | same shape for deployments |
+| `kube-query ns` (`n`) · `kube-query node` (`no`) · `kube-query svc` · `kube-query cm` | namespaces, nodes, services, configmaps |
+| `kube-query secret` (`sec`) | values hidden; `kube-query sec NAME --reveal` decodes (explicit opt-in) |
+| `kube-query ev` (`events`, `e`) | events, newest first: `--type Warning --since 2h --for pod/NAME` |
+| `kube-query get RESOURCE[/NAME]` (`g`) | any resource incl. CRDs; `kube-query api` lists all types |
+| `kube-query describe` (`desc`) | diagnosis bundle: summary + object + children + events |
+| `kube-query tree RESOURCE/NAME` (`t`) | ownership tree (`deploy/web`, `cronjob/x`, `node/y`) |
+| `kube-query helm` (`h`) | releases read-only from Helm's release Secrets; `show NAME` adds values |
+| `kube-query eso` | ExternalSecret sync status (`--stores` for SecretStores) |
+| `kube-query ctx` (`c`) | kubeconfig contexts (`kube-query c l`), no API calls |
+| `kube-query ver` | client + server version (which cluster am I on?) |
 
 Shared flags: `-n NS` · `-A` · `-l SELECTOR` · `--field-selector` · `-f/--filter REGEX`
 · `-o yaml|json|rich|md|tree` (default yaml, `KQ_OUTPUT` env) · `-v`/`-vv`.
@@ -86,10 +83,10 @@ Shared flags: `-n NS` · `-A` · `-l SELECTOR` · `--field-selector` · `-f/--fi
 ## Output
 
 ```bash
-kq overview -o rich      # aligned, colored tables (humans)
-kq p l -A -o md          # markdown tables (tickets, chat, agent reports)
-kq p web-5d9c6 -o json   # machine-readable
-kq d l -o tree           # ownership view
+kube-query overview -o rich      # aligned, colored tables (humans)
+kube-query p l -A -o md          # markdown tables (tickets, chat, agent reports)
+kube-query p web-5d9c6 -o json   # machine-readable
+kube-query d l -o tree           # ownership view
 ```
 
 Stdout is always the payload (parseable); commentary goes to stderr as
@@ -103,9 +100,9 @@ Give your agent (Claude Code, opencode, codex, …) the one-file skill:
 contract, failure-signature table, and rules of engagement. Suggested
 system-prompt line:
 
-> Use `kq` (read-only) to inspect the Kubernetes cluster: start with
-> `kq overview`, then `kq p desc <pod>`, `kq logs`, `kq tree`, `kq ev`.
-> Never attempt cluster changes with kq; propose them for kubectl instead.
+> Use `kube-query` (read-only) to inspect the Kubernetes cluster: start with
+> `kube-query overview`, then `kube-query p desc <pod>`, `kube-query logs`, `kube-query tree`, `kube-query ev`.
+> Never attempt cluster changes with kube-query; propose them for kubectl instead.
 
 ## Documentation
 
@@ -140,7 +137,7 @@ against an in-process fake Kubernetes API server.
 1. `kube_query/http.py` exposes `raw_get` only — there is no verb parameter anywhere.
 2. `kube_query/access.py` builds list/get/log paths only.
 3. Secret values are redacted unless `--reveal` is passed explicitly.
-4. Your RBAC still applies — kq reads exactly what your credentials allow.
+4. Your RBAC still applies — kube-query reads exactly what your credentials allow.
 
 ## License
 

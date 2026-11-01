@@ -105,7 +105,7 @@ def test_pod_not_found_error(run):
     assert res.exit_code == 1
     text = res.output + getattr(res, "stderr", "")
     assert "not found" in text
-    assert "kq get pods" in text
+    assert "kube-query get pods" in text
 
 
 def test_unknown_resource_suggests(run):

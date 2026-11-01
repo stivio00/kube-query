@@ -1,4 +1,4 @@
-"""`kq describe` — object + summary + ownership children + related events."""
+"""`kube-query describe` — object + summary + ownership children + related events."""
 
 from __future__ import annotations
 

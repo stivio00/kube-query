@@ -1,4 +1,4 @@
-"""`kq overview` — one-shot cluster health snapshot for triage."""
+"""`kube-query overview` — one-shot cluster health snapshot for triage."""
 
 from __future__ import annotations
 

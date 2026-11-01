@@ -1,24 +1,24 @@
 # kube-query usage manual
 
-`kq` (PyPI package: `kubeq`; also runnable as `kube-query`/`kubeq`) is a **read-only** Kubernetes query CLI.
+`kube-query` (PyPI package: `kube-query`) is a **read-only** Kubernetes query CLI.
 It answers *what is the state of the cluster and why is it unhealthy*, in
 compact formats designed for both humans and AI agents. It only ever sends
 `GET` requests to the API server.
 
-- Binary names: `kq` / `kube-query` / `kubeq` (same program)
-- Install: `uv tool install kubeq` (permanent) or `uvx kubeq` (one-off) —
-  the PyPI project is **`kubeq`**; the `kq` name on PyPI is an unrelated
-  Kafka library
+- Binary: `kube-query` (there is deliberately no short `kq` executable — that
+  name on PyPI belongs to an unrelated Kafka library; `alias kq=kube-query`
+  if you want it short)
+- Install: `uv tool install kube-query` (permanent) or `uvx kube-query` (one-off)
 - Output default: **compact YAML**; `-o json | rich | md | tree`
 - Cluster selection: standard kubeconfig (`KUBECONFIG` env), `--kubeconfig`, `--ctx`
-- RBAC: whatever your user/service-account can read, kq can show — nothing more
+- RBAC: whatever your user/service-account can read, kube-query can show — nothing more
 
 ---
 
 ## 1. Global options
 
 ```
-kq [GLOBAL OPTIONS] COMMAND [ARGS...]
+kube-query [GLOBAL OPTIONS] COMMAND [ARGS...]
 
 --ctx, --context NAME    kubeconfig context for this invocation
 --kubeconfig PATH        explicit kubeconfig file
@@ -34,16 +34,16 @@ Useful environment variables: `KUBECONFIG`, `KQ_OUTPUT`, `KQ_TIMEOUT` (request t
 
 Exit codes: `0` success · `1` runtime error (message on stderr, one actionable sentence) · `2` usage error.
 
-## 2. Triage: `kq overview`
+## 2. Triage: `kube-query overview`
 
 One command, whole cluster, problems first. Covers nodes, problem pods,
 unavailable deployments, unbound PVCs and recent warning events. Tolerates
 partial RBAC (missing sections are reported as `unavailable`).
 
 ```bash
-kq overview                    # all namespaces (default)
-kq overview -n prod            # one namespace
-kq overview --since 4h -o rich # wider event window, human table
+kube-query overview                    # all namespaces (default)
+kube-query overview -n prod            # one namespace
+kube-query overview --since 4h -o rich # wider event window, human table
 ```
 
 YAML output shape (trimmed):
@@ -88,10 +88,10 @@ summary:
 Every group follows the same shape:
 
 ```
-kq <group> [l] [REGEX] [flags]     list (default when no subcommand)
-kq <group> NAME                    show one object, full compact YAML
-kq <group> desc NAME               diagnosis bundle (summary+object+children+events)
-kq <group> logs NAME               pods only: container logs
+kube-query <group> [l] [REGEX] [flags]     list (default when no subcommand)
+kube-query <group> NAME                    show one object, full compact YAML
+kube-query <group> desc NAME               diagnosis bundle (summary+object+children+events)
+kube-query <group> logs NAME               pods only: container logs
 ```
 
 | Group | Aliases | Notes |
@@ -111,20 +111,20 @@ kq <group> logs NAME               pods only: container logs
 `-f/--filter REGEX`, positional `REGEX` (matches object names), `-o`, `-v`.
 
 ```bash
-kq p l                          # pods in current namespace
-kq p l -A                       # everywhere
-kq p l '^api-' -n prod          # regex filter
-kq p l -l app=web,tier=fe       # label selector
-kq p l --field-selector status.phase=Pending -A
-kq p web-5d9c6 -n prod          # single pod, compact YAML
-kq p desc web-5d9c6 -n prod     # + events, restarts, waiting reasons
-kq p logs web-5d9c6 -c app --tail 50
-kq p logs web-5d9c6 --previous  # crashed instance logs
-kq sec l -A                     # secrets (values not shown)
-kq sec show regcred --reveal    # decoded values (explicit opt-in)
-kq cm show app-config           # data shown, long values capped
-kq ctx ls                       # which cluster am I on?
-kq --ctx staging p l            # quick context switch for one query
+kube-query p l                          # pods in current namespace
+kube-query p l -A                       # everywhere
+kube-query p l '^api-' -n prod          # regex filter
+kube-query p l -l app=web,tier=fe       # label selector
+kube-query p l --field-selector status.phase=Pending -A
+kube-query p web-5d9c6 -n prod          # single pod, compact YAML
+kube-query p desc web-5d9c6 -n prod     # + events, restarts, waiting reasons
+kube-query p logs web-5d9c6 -c app --tail 50
+kube-query p logs web-5d9c6 --previous  # crashed instance logs
+kube-query sec l -A                     # secrets (values not shown)
+kube-query sec show regcred --reveal    # decoded values (explicit opt-in)
+kube-query cm show app-config           # data shown, long values capped
+kube-query ctx ls                       # which cluster am I on?
+kube-query --ctx staging p l            # quick context switch for one query
 ```
 
 ### Verbosity
@@ -135,17 +135,17 @@ kq --ctx staging p l            # quick context switch for one query
 | `-v` | keeps system metadata, still strips `managedFields` + last-applied annotation |
 | `-vv` | raw object, nothing stripped |
 
-## 4. Any resource incl. CRDs: `kq get`
+## 4. Any resource incl. CRDs: `kube-query get`
 
 ```bash
-kq get pods -A                      # same as p l -A
-kq get pod/web-5d9c6 -n prod        # RESOURCE/NAME form
-kq get deployments.apps -n prod     # group-qualified
-kq get apps/v1/deployments -n prod  # apiVersion-qualified
-kq get externalsecrets -A           # CRDs just work (discovery-driven)
-kq get crds                         # what CRDs exist?
-kq api                              # all resource types incl. CRDs
-kq api external-secrets             # regex filter
+kube-query get pods -A                      # same as p l -A
+kube-query get pod/web-5d9c6 -n prod        # RESOURCE/NAME form
+kube-query get deployments.apps -n prod     # group-qualified
+kube-query get apps/v1/deployments -n prod  # apiVersion-qualified
+kube-query get externalsecrets -A           # CRDs just work (discovery-driven)
+kube-query get crds                         # what CRDs exist?
+kube-query api                              # all resource types incl. CRDs
+kube-query api external-secrets             # regex filter
 ```
 
 Name resolution accepts plurals, singulars, kinds and shortnames
@@ -155,60 +155,60 @@ suggestions: *“unknown resource type 'podz'. Did you mean: pods?”*
 
 ## 5. Diagnosis helpers
 
-### `kq describe` (alias `desc`)
+### `kube-query describe` (alias `desc`)
 
 `summary` (computed status/health) + `object` (compact) + `children`
 (ownership) + `events` (related, 20 most recent) in one document.
 
 ```bash
-kq describe pod web-5d9c6 -n prod
-kq desc deploy/web -n prod
+kube-query describe pod web-5d9c6 -n prod
+kube-query desc deploy/web -n prod
 ```
 
-### `kq tree` (alias `t`)
+### `kube-query tree` (alias `t`)
 
 Ownership chains with health per node:
 
 ```bash
-kq tree deploy/web -n prod          # Deployment -> ReplicaSet -> Pods
-kq tree cronjob/backup -n prod      # CronJob -> Jobs -> Pods
-kq tree node/worker-1               # pods scheduled on a node
-kq tree deploy/web -o yaml          # nested structure as data
-kq p l -o tree                      # forest view of any list
+kube-query tree deploy/web -n prod          # Deployment -> ReplicaSet -> Pods
+kube-query tree cronjob/backup -n prod      # CronJob -> Jobs -> Pods
+kube-query tree node/worker-1               # pods scheduled on a node
+kube-query tree deploy/web -o yaml          # nested structure as data
+kube-query p l -o tree                      # forest view of any list
 ```
 
-## 6. Events: `kq ev`
+## 6. Events: `kube-query ev`
 
 ```bash
-kq ev                               # current namespace, newest first, 50 max
-kq ev -A --type Warning --since 2h  # cluster warnings in a window
-kq ev --for pod/web-5d9c6 -n prod   # events about one object
-kq ev 'BackOff' -A                  # regex on reason/object/message
-kq ev --limit 200                   # more rows
+kube-query ev                               # current namespace, newest first, 50 max
+kube-query ev -A --type Warning --since 2h  # cluster warnings in a window
+kube-query ev --for pod/web-5d9c6 -n prod   # events about one object
+kube-query ev 'BackOff' -A                  # regex on reason/object/message
+kube-query ev --limit 200                   # more rows
 ```
 
 Compact event shape: `lastSeen, type, reason, object (Kind/name), namespace, count, source, message`.
 
-## 7. Helm (read-only): `kq helm`
+## 7. Helm (read-only): `kube-query helm`
 
 Helm 3 stores releases as Secrets (`sh.helm.release.v1.<name>.v<rev>`,
-label `owner=helm`). kq lists them without the helm binary and best-effort
+label `owner=helm`). kube-query lists them without the helm binary and best-effort
 decodes chart metadata + effective values from the payload.
 
 ```bash
-kq helm ls -A               # name, revision, status, chart, updated
-kq helm show wordpress      # + chart meta and effective values
-kq helm show grafana -n monitoring -o json
+kube-query helm ls -A               # name, revision, status, chart, updated
+kube-query helm show wordpress      # + chart meta and effective values
+kube-query helm show grafana -n monitoring -o json
 ```
 
 If a payload can't be decoded (very old/hand-modified releases), the release
 still lists with `chart: ?`.
 
-## 8. External Secrets Operator: `kq eso`
+## 8. External Secrets Operator: `kube-query eso`
 
 ```bash
-kq eso -A                    # ExternalSecrets: store, target, Ready, reason
-kq eso --stores -A           # SecretStores + ClusterSecretStores
+kube-query eso -A                    # ExternalSecrets: store, target, Ready, reason
+kube-query eso --stores -A           # SecretStores + ClusterSecretStores
 ```
 
 Missing ESO CRDs produce a clear message instead of a stack trace.
@@ -228,8 +228,8 @@ agents (no env) keep YAML.
 
 ## 10. Safety model
 
-- kq contains **no code path** that issues POST/PUT/PATCH/DELETE — the HTTP
+- kube-query contains **no code path** that issues POST/PUT/PATCH/DELETE — the HTTP
   layer only implements `GET`.
 - Secrets values are redacted unless `--reveal` is passed explicitly.
-- RBAC still applies: kq shows exactly what your credentials can read.
+- RBAC still applies: kube-query shows exactly what your credentials can read.
 - Fixing things is deliberately out of scope: use kubectl/gitops/helm for that.

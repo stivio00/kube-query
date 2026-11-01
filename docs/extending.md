@@ -7,7 +7,7 @@ layer.
 
 | You want to add... | Touch... |
 |---|---|
-| a new sugar group (`kq sts l`, `kq job l`) | `commands/groups.py` — one `make_resource_group(...)` call + registration in `commands/__init__.py` |
+| a new sugar group (`kube-query sts l`, `kube-query job l`) | `commands/groups.py` — one `make_resource_group(...)` call + registration in `commands/__init__.py` |
 | smart table columns for a kind | `summarize.COLUMNS` (and `summary_for` for describe) |
 | a new output format (`-o csv`) | `output.py`: add to `FORMATS`, an emitter, and branch in `render_list`/`render_single` |
 | a new triage section in overview | `commands/overview.py::build_overview` (wrap in `_section` for RBAC tolerance) |
@@ -82,5 +82,5 @@ Format resolution order is: command flag → group flag → root flag →
 ```bash
 uv run ruff check . && uv run ruff format --check .
 uv run pytest
-uv run kq <your command> --help      # help text stays one scannable line
+uv run kube-query <your command> --help      # help text stays one scannable line
 ```

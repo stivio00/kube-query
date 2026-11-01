@@ -244,7 +244,7 @@ def show_release(ctx, name: str, *, namespace: str | None = None) -> dict:
         where = f" in namespace '{namespace}'" if namespace else ""
         raise KqError(
             f"helm release '{name}' not found{where}.\n"
-            "  Hint: list releases with 'kq helm ls' (add -A for all namespaces)."
+            "  Hint: list releases with 'kube-query helm ls' (add -A for all namespaces)."
         )
     latest = max(cands, key=lambda s: _revision(parse_release_secret(s)))
     rel = parse_release_secret(latest)

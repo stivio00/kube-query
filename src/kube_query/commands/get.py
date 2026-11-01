@@ -1,4 +1,4 @@
-"""`kq get RESOURCE [NAME]` — generic query for any resource, including CRDs."""
+"""`kube-query get RESOURCE [NAME]` — generic query for any resource, including CRDs."""
 
 from __future__ import annotations
 
@@ -32,7 +32,7 @@ def get(
     verbose,
     output_fmt,
 ):
-    """Get any resource (built-ins and CRDs): kq get RESOURCE[/NAME] [-n NS|-A]"""
+    """Get any resource (built-ins and CRDs): kube-query get RESOURCE[/NAME] [-n NS|-A]"""
     eff = settings.effect(namespace=namespace, output=output_fmt, verbose=verbose, all_namespaces=all_namespaces)
     api_version, res_name, obj_name = parse_target(resource, name)
     if obj_name and (label_selector or field_selector):

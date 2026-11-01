@@ -26,9 +26,9 @@ class KqGroup(click.Group):
 class ResourceGroup(KqGroup):
     """A resource group:
 
-    - ``kq pod``           -> runs the default command (ls)
-    - ``kq pod nginx-123`` -> unknown token dispatches to `show` with the name
-    - ``kq pod ls``        -> normal subcommand
+    - ``kube-query pod``           -> runs the default command (ls)
+    - ``kube-query pod nginx-123`` -> unknown token dispatches to `show` with the name
+    - ``kube-query pod ls``        -> normal subcommand
     """
 
     def __init__(self, *args, **kwargs) -> None:

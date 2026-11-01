@@ -114,7 +114,7 @@ def test_resolve_unknown_gives_suggestions():
     msg = str(ei.value.message)
     assert "unknown resource type 'podz'" in msg
     assert "pods" in msg
-    assert "kq api" in msg
+    assert "kube-query api" in msg
 
 
 def test_resolve_bad_api_version():

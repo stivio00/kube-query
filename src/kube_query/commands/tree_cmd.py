@@ -1,4 +1,4 @@
-"""`kq tree` — ownership tree (Deployment -> ReplicaSet -> Pods, ...)."""
+"""`kube-query tree` — ownership tree (Deployment -> ReplicaSet -> Pods, ...)."""
 
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ from ..tree import build_forest, md_forest, node_dict, rich_forest
 @click.option("-v", "--verbose", count=True, default=0, help="Verbosity (affects yaml/json payloads).")
 @click.pass_obj
 def tree(settings, resource, name, namespace, output_fmt, verbose):
-    """Ownership tree: kq tree RESOURCE/NAME (deploy/web, cronjob/backup, node/worker-1)"""
+    """Ownership tree: kube-query tree RESOURCE/NAME (deploy/web, cronjob/backup, node/worker-1)"""
     eff = settings.effect(namespace=namespace, output=output_fmt, verbose=verbose, default_output="tree")
     api_version, res_name, obj_name = parse_target(resource, name)
     if not obj_name:

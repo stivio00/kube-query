@@ -1,4 +1,4 @@
-# Tutorial — debug a broken deployment with kq
+# Tutorial — debug a broken deployment with kube-query
 
 A hands-on walkthrough of the intended triage loop. Reproduce it against any
 cluster (a `kind`/`minikube` cluster works) by deploying something broken, or
@@ -7,7 +7,7 @@ just follow along.
 ## 0. Know where you are
 
 ```bash
-$ kq ctx ls
+$ kube-query ctx ls
 * fake   fake   http://127.0.0.1:8001   fake   default
   fake2  fake   http://127.0.0.1:8001   fake   prod
 ```
@@ -18,7 +18,7 @@ The `*` marks the active context. Everything below runs there — or pass
 ## 1. Snapshot the cluster
 
 ```bash
-$ kq overview
+$ kube-query overview
 context: fake
 scope: all namespaces
 nodes:
@@ -79,7 +79,7 @@ show. Now drill down.
 ## 2. Diagnose the crashing pod
 
 ```bash
-$ kq p desc web-7f9c6-b
+$ kube-query p desc web-7f9c6-b
 summary:
   kind: Pod
   name: web-7f9c6-b
@@ -137,7 +137,7 @@ Last termination reason `Error` with exit code 1 — the app is crashing at
 startup. Get the crash output:
 
 ```bash
-$ kq p logs web-7f9c6-b --previous
+$ kube-query p logs web-7f9c6-b --previous
 previous crash log line A
 previous crash log line B
 ```
@@ -147,24 +147,24 @@ denied`. Check what the pod actually mounts — the config comes from a
 ConfigMap:
 
 ```bash
-$ kq p show web-7f9c6-b -v      # -v keeps uid/volumes details
-$ kq cm show app-config         # inspect the data (long values are capped)
+$ kube-query p show web-7f9c6-b -v      # -v keeps uid/volumes details
+$ kube-query cm show app-config         # inspect the data (long values are capped)
 ```
 
 Diagnosis: mount path/config mismatch. The **fix** (edit the ConfigMap or the
-deployment spec) belongs to kubectl/gitops — kq deliberately can't do it.
+deployment spec) belongs to kubectl/gitops — kube-query deliberately can't do it.
 
 ## 3. Diagnose the pending pod
 
 ```bash
-$ kq ev --for pod/web-7f9c6-c
+$ kube-query ev --for pod/web-7f9c6-c
 - lastSeen: '2026-11-01T10:58:00Z'
   type: Warning
   reason: FailedScheduling
   object: Pod/web-7f9c6-c
   count: 2
   message: '0/2 nodes are available: 1 node(s) had untolerated taint, 1 Insufficient memory.'
-$ kq no l -o rich
+$ kube-query no l -o rich
   NAME     STATUS     ROLES           AGE   VERSION
   node-1   Ready      control-plane   8w    v1.31.1
   node-2   NotReady   <none>          8w    v1.31.1
@@ -176,7 +176,7 @@ NotReady. Not a pod problem — a capacity/node problem.
 ## 4. See the rollout as a whole
 
 ```bash
-$ kq tree deploy/web
+$ kube-query tree deploy/web
 Deployment web - 1/3 - 8w
 ├── ReplicaSet web-7f9c6 - 2/3
 │   ├── Pod web-7f9c6-a - Running - ready 1/1 - 1d
@@ -189,8 +189,8 @@ Same story, one picture: 1 healthy, 1 crash-looping, 1 unschedulable.
 ## 5. Markdown report for the ticket
 
 ```bash
-kq overview -o md > incident.md
-kq p desc web-7f9c6-b -o md >> incident.md
+kube-query overview -o md > incident.md
+kube-query p desc web-7f9c6-b -o md >> incident.md
 ```
 
 `-o md` renders headings + tables + fenced YAML blocks — paste straight into
@@ -199,14 +199,14 @@ a GitHub issue or a chat with a human.
 ## 6. Helm and CRDs in the same loop
 
 ```bash
-$ kq helm ls -A
+$ kube-query helm ls -A
   NAME         NAMESPACE   REVISION   STATUS     CHART              UPDATED
   wordpress    default     2          deployed   wordpress-15.2.1   3h
   grafana      prod        1          deployed   grafana-8.5.0      2d
 
-$ kq helm show grafana -n prod      # effective values — is persistence off by accident?
+$ kube-query helm show grafana -n prod      # effective values — is persistence off by accident?
 
-$ kq eso -A                         # ExternalSecrets failing to sync?
+$ kube-query eso -A                         # ExternalSecrets failing to sync?
   NAME         NAMESPACE   STORE            TARGET           READY   REASON
   my-secret    default     SecretStore/vault target-secret    True    SecretSynced
   broken-es    default     SecretStore/vault broken-target    False   StoreError
@@ -218,4 +218,4 @@ $ kq eso -A                         # ExternalSecrets failing to sync?
 2. `desc` gives you the full picture of one object in a single document.
 3. `logs --previous` is the crash message; events explain scheduling.
 4. `tree` shows rollout shape; `-o md` writes the report.
-5. kq stops at *diagnosis* — the fix goes through kubectl/gitops/helm, on purpose.
+5. kube-query stops at *diagnosis* — the fix goes through kubectl/gitops/helm, on purpose.

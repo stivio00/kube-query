@@ -1,4 +1,4 @@
-"""kq — read-only Kubernetes queries for humans and AI agents."""
+"""kube-query — read-only Kubernetes queries for humans and AI agents."""
 
 from __future__ import annotations
 
@@ -13,25 +13,26 @@ from .output import FORMATS
 EPILOG = """\
 \b
 USAGE PATTERNS
-  kq overview                        cluster snapshot: problems first
-  kq p l [-A|-n NS] [REGEX]          list pods          (d=deploy, n=ns, no=node,
-  kq p NAME / p desc NAME            inspect            sec=secret, cm, svc, ev)
-  kq logs NAME [-c C] [--tail N]     pod logs           kq tree deploy/NAME
-  kq get RESOURCE[/NAME]             any resource incl. CRDs; kq api lists all
-  kq helm ls -A / kq eso -A          helm releases / ExternalSecret status
+  kube-query overview                cluster snapshot: problems first
+  kube-query p l [-A|-n NS] [REGEX]  list pods   (d=deploy, n=ns, no=node,
+  kube-query p NAME / p desc NAME    inspect      sec=secret, cm, svc, ev)
+  kube-query logs NAME [-c C]        pod logs     kube-query tree deploy/NAME
+  kube-query get RESOURCE[/NAME]     any resource incl. CRDs ('api' lists all)
+  kube-query helm ls -A / eso -A     helm releases / ExternalSecret status
+  tip: alias kq=kube-query for a short form
 
 \b
 OPTIONS
-  -o yaml|json|rich|md|tree          output (default: compact yaml)
-  -n NS | -A | -l SELECTOR | -f RX   scope: namespace / all / labels / name regex
-  -v (system metadata) -vv (raw)     verbosity
-  --ctx NAME / --kubeconfig PATH     cluster selection
+  -o yaml|json|rich|md|tree        output (default: compact yaml)
+  -n NS | -A | -l SEL | -f REGEX   scope: namespace / all / labels / name
+  -v (system metadata) -vv (raw)   verbosity
+  --ctx NAME / --kubeconfig PATH   cluster selection
 
 \b
 ROLE
-  kq CAPTURES cluster state for diagnosis; fixing belongs to other tools
-  (kubectl apply, gitops, helm). kq only sends GET requests - it can
-  never create, update or delete anything.
+  kube-query CAPTURES cluster state for diagnosis; fixing belongs to
+  other tools (kubectl apply, gitops, helm). It only sends GET requests -
+  it can never create, update or delete anything.
 """
 
 
@@ -57,11 +58,11 @@ ROLE
 @click.option("-v", "--verbose", count=True, help="Verbosity: -v keep system metadata, -vv raw object.")
 @click.pass_context
 def main(ctx, context, kubeconfig, namespace, all_namespaces, output_fmt, verbose):
-    """kq - read-only Kubernetes queries for AI agents and humans.
+    """kube-query - read-only Kubernetes queries for AI agents and humans.
 
     Compact yaml by default; rich tables, markdown, json and ownership
     trees on request. Built-ins, shortnames, CRDs, Helm releases and
-    External Secrets Operator. Start with: kq overview
+    External Secrets Operator. Start with: kube-query overview
     """
     ctx.obj = Settings(
         context=context,

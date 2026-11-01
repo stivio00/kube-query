@@ -214,7 +214,7 @@ def kubeconfig(fake_api, tmp_path_factory):
 
 @pytest.fixture
 def run(kubeconfig):
-    """Invoke the kq CLI against the fake API server."""
+    """Invoke the kube-query CLI against the fake API server."""
     from kube_query.cli import main
 
     runner = CliRunner()
@@ -227,7 +227,7 @@ def run(kubeconfig):
         )
         if check and result.exit_code != 0:
             raise AssertionError(
-                f"kq {' '.join(str(a) for a in args)} failed (exit {result.exit_code}):\n"
+                f"kube-query {' '.join(str(a) for a in args)} failed (exit {result.exit_code}):\n"
                 f"{getattr(result, 'output', '')}\n{getattr(result, 'stderr', '')}"
             )
         return result

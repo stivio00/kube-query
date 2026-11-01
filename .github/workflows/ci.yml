@@ -39,10 +39,8 @@ jobs:
       - name: Smoke the built wheel
         run: |
           pip install dist/*.whl
-          kq --version
-          kq --help
+          kube-query --version
           kube-query --help
-          kubeq --version
 
       - uses: actions/upload-artifact@v7
         with:

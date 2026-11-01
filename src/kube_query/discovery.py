@@ -103,7 +103,7 @@ def resolve(ctx: Ctx, name: str, *, api_version: str | None = None, group: str |
         want = api_version.lower()
         pool = [e for e in pool if e.api_version.lower() == want]
         if not pool:
-            raise KqError(f"unknown api version '{api_version}'. Hint: 'kq api' lists all.")
+            raise KqError(f"unknown api version '{api_version}'. Hint: 'kube-query api' lists all.")
     elif group:
         want = group.lower()
         pool = [e for e in pool if e.group.lower() == want]
@@ -161,7 +161,7 @@ def _unknown(entries: list[ApiResource], name: str, *, api_version: str | None, 
     msg = f"unknown resource type '{name}'{scope}."
     if close:
         msg += f" Did you mean: {', '.join(close)}?"
-    msg += "\n  Hint: 'kq api' lists every resource type in this cluster (incl. CRDs)."
+    msg += "\n  Hint: 'kube-query api' lists every resource type in this cluster (incl. CRDs)."
     return KqError(msg)
 
 

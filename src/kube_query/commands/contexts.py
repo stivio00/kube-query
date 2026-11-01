@@ -1,4 +1,4 @@
-"""`kq ctx` — kubeconfig contexts (no API calls)."""
+"""`kube-query ctx` — kubeconfig contexts (no API calls)."""
 
 from __future__ import annotations
 
@@ -59,7 +59,7 @@ def make_contexts_group() -> ResourceGroup:
         if row is None:
             from ..errors import KqError
 
-            raise KqError(f"context '{name}' not found.\n  Hint: 'kq ctx ls' lists available contexts.")
+            raise KqError(f"context '{name}' not found.\n  Hint: 'kube-query ctx ls' lists available contexts.")
         if eff.output in ("yaml", "json"):
             emit_data(row, eff.output)
         elif eff.output in ("rich", "md"):

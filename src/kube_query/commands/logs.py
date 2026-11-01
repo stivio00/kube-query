@@ -1,4 +1,4 @@
-"""`kq logs` — pod container logs (read-only)."""
+"""`kube-query logs` — pod container logs (read-only)."""
 
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ from ..summarize import dig, parse_since
 @click.option("-n", "--ns", "--namespace", "namespace", default=None, help="Namespace.")
 @click.pass_obj
 def logs(settings, name, container, tail, since, previous, timestamps, all_containers, namespace):
-    """Pod logs (plain text): kq logs POD [-c CONTAINER] [--tail N] [--previous]"""
+    """Pod logs (plain text): kube-query logs POD [-c CONTAINER] [--tail N] [--previous]"""
     client = settings.client
     eff_ns = namespace or settings.namespace
     ns = eff_ns or client.default_namespace()

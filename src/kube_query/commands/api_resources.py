@@ -1,4 +1,4 @@
-"""`kq api` — list every resource type the cluster serves (incl. CRDs)."""
+"""`kube-query api` — list every resource type the cluster serves (incl. CRDs)."""
 
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ COLUMNS = [
 @output_option
 @click.pass_obj
 def api(settings, pattern, output_fmt):
-    """All resource types including CRDs: kq api [REGEX]"""
+    """All resource types including CRDs: kube-query api [REGEX]"""
     eff = settings.effect(output=output_fmt)
     entries = fetch_resources(settings.client)
     if pattern:

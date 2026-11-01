@@ -3,7 +3,7 @@
 
 PYTHON ?= .venv/bin/python
 PIP    ?= uv pip install --python $(PYTHON)
-KQ     ?= .venv/bin/kq
+KQ     ?= .venv/bin/kube-query
 
 VERSION := $(shell $(PYTHON) -c "from kube_query import __version__; print(__version__)" 2>/dev/null || echo unknown)
 
@@ -38,7 +38,7 @@ build: clean-dist ## Build sdist + wheel into dist/
 	$(PYTHON) -m build
 
 check-dist: build ## Verify distributions (twine-style metadata sanity)
-	$(PYTHON) -m pip install -q --force-reinstall dist/*.whl --target /tmp/kq-dist-check >/dev/null 2>&1 \
+	$(PYTHON) -m pip install -q --force-reinstall dist/*.whl --target /tmp/kube-query-dist-check >/dev/null 2>&1 \
 		|| $(PYTHON) -m zipfile -l dist/*.whl >/dev/null
 	@ls -lh dist/
 
@@ -53,7 +53,7 @@ release: check-dist ## Dry-run the release: gate + build + dist check
 
 check: lint format-check test check-dist ## Full gate: lint + format + tests + build (same as CI)
 
-demo: ## Play with kq against a fake cluster (no kubeconfig needed)
+demo: ## Play with kube-query against a fake cluster (no kubeconfig needed)
 	$(PYTHON) scripts/demo.py
 
 clean-dist: ## Remove dist/ and build artifacts

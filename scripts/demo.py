@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run kq against a fake Kubernetes API server — try the tool with no cluster.
+"""Run kube-query against a fake Kubernetes API server — try the tool with no cluster.
 
 Starts an in-process API server with realistic fixture data (pods in several
 states, a stuck deployment, warning events, helm release secrets, ESO CRDs),
@@ -29,19 +29,19 @@ from conftest import FakeKubeHandler  # noqa: E402
 from fixtures import build_discovery, build_objects  # noqa: E402
 
 EXAMPLES = """\
-  kq overview                        # snapshot: problems first
-  kq ctx ls                          # which context am I on?
-  kq p l -A                          # all pods, all namespaces
-  kq p desc web-7f9c6-b              # crashloop diagnosis bundle
-  kq p logs web-7f9c6-b --previous   # crashed instance logs
-  kq tree deploy/web                 # Deployment -> ReplicaSet -> Pods
-  kq ev -A --type Warning --since 2h # cluster warnings
-  kq sec show regcred --reveal       # decode a secret (explicit opt-in)
-  kq helm ls -A && kq helm show wordpress
-  kq eso -A                          # ExternalSecret sync status
-  kq get externalsecrets -A          # CRDs via the generic core
-  kq api | head -30                  # discovery
-  kq overview -o md > report.md      # markdown report
+  kube-query overview                        # snapshot: problems first
+  kube-query ctx ls                          # which context am I on?
+  kube-query p l -A                          # all pods, all namespaces
+  kube-query p desc web-7f9c6-b              # crashloop diagnosis bundle
+  kube-query p logs web-7f9c6-b --previous   # crashed instance logs
+  kube-query tree deploy/web                 # Deployment -> ReplicaSet -> Pods
+  kube-query ev -A --type Warning --since 2h # cluster warnings
+  kube-query sec show regcred --reveal       # decode a secret (explicit opt-in)
+  kube-query helm ls -A && kube-query helm show wordpress
+  kube-query eso -A                          # ExternalSecret sync status
+  kube-query get externalsecrets -A          # CRDs via the generic core
+  kube-query api | head -30                  # discovery
+  kube-query overview -o md > report.md      # markdown report
 """
 
 
@@ -52,7 +52,7 @@ def main() -> int:
     server = ThreadingHTTPServer(("127.0.0.1", 0), FakeKubeHandler)
     threading.Thread(target=server.serve_forever, daemon=True).start()
 
-    kubeconfig = Path(tempfile.mkdtemp(prefix="kq-demo-")) / "kubeconfig"
+    kubeconfig = Path(tempfile.mkdtemp(prefix="kube-query-demo-")) / "kubeconfig"
     kubeconfig.write_text(
         yaml.safe_dump(
             {

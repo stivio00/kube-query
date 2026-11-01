@@ -19,7 +19,7 @@ def eso_rows(ctx, *, namespace: str | None = None) -> list[dict]:
     except KqError:
         raise KqError(
             "ExternalSecret CRD not found - is External Secrets Operator installed?\n"
-            "  Hint: 'kq api' to list resource types (look for external-secrets.io)."
+            "  Hint: 'kube-query api' to list resource types (look for external-secrets.io)."
         ) from None
     items = list_objects(ctx, entry, namespace=namespace)
     rows = []
@@ -75,7 +75,7 @@ def store_rows(ctx, *, namespace: str | None = None) -> list[dict]:
     if not found_any:
         raise KqError(
             "SecretStore CRDs not found - is External Secrets Operator installed?\n"
-            "  Hint: 'kq api' to list resource types (look for external-secrets.io)."
+            "  Hint: 'kube-query api' to list resource types (look for external-secrets.io)."
         )
     rows.sort(key=lambda r: (r["namespace"], r["kind"], r["name"]))
     return rows

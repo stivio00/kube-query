@@ -1,4 +1,4 @@
-"""Command registry for the kq root group."""
+"""Command registry for the kube-query root group."""
 
 from __future__ import annotations
 

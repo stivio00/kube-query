@@ -1,6 +1,6 @@
 """Sugar groups: pod/p, ns/n, deploy/d, svc, secret/sec, cm, node/no.
 
-Each group gets: ls (default), show (implicit via `kq pod NAME`), desc,
+Each group gets: ls (default), show (implicit via `kube-query pod NAME`), desc,
 and for pods also logs. All of them share the generic core, so CRD-like
 behavior (label selectors, -A, --field-selector, formats) works everywhere.
 """

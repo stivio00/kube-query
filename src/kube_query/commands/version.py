@@ -1,4 +1,4 @@
-"""`kq ver` — client and server version."""
+"""`kube-query ver` — client and server version."""
 
 from __future__ import annotations
 

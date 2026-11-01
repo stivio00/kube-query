@@ -7,16 +7,20 @@ versioning follows SemVer.
 ## [0.1.1] — 2026-11-01
 
 ### Changed
-- **PyPI distribution renamed to `kubeq`** so `uvx kubeq` / `pipx install kubeq`
-  work directly (the short `kq` project name on PyPI belongs to an unrelated
-  Kafka library). The CLI is unchanged; the wheel now provides three
-  equivalent entry points: `kq`, `kube-query`, `kubeq`.
-- The original `kube-query` 0.1.0 release remains on PyPI as the first
-  published artifact; `kubeq` is the canonical distribution going forward.
+- **Single executable: `kube-query`.** The short `kq` console script was
+  dropped — the `kq` name on PyPI belongs to an unrelated Kafka library and
+  PyPI's similarity rules block close variants (`kubeq`), so shipping a `kq`
+  binary only invited confusion. Want it short? `alias kq=kube-query`.
+- Version is now single-sourced from `kube_query.__version__` (pyproject pulls
+  it dynamically), so the release gate's tag↔version check can't diverge.
+- CI actions bumped to Node 24 majors (checkout v7, setup-python v7,
+  upload-artifact v7, gh-release v3).
+- Docs standardized on `uvx kube-query` / `uv tool install kube-query`.
 
-### Added
-- `kubeq` console script (alias of `kq`).
-- CI smoke-checks all three installed entry points.
+### Notes
+- The distribution briefly moved to the name `kubeq`; reverted because PyPI's
+  name-similarity guard rejects it (one letter from the existing `kube`
+  library). The package remains **`kube-query`**.
 
 ## [0.1.0] — 2026-11-01
 

@@ -72,7 +72,7 @@ def build_forest(ctx, root_entry, root_obj: dict) -> list[Node]:
 
 
 def forest_for_items(ctx, entry, items: list[dict]) -> list[Node]:
-    """Forest over a list of items (e.g. `kq get deployments -o tree`)."""
+    """Forest over a list of items (e.g. `kube-query get deployments -o tree`)."""
     by_ns: dict = {}
     for it in items:
         by_ns.setdefault(dig(it, "metadata", "namespace") or "", []).append(it)

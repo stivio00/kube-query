@@ -39,7 +39,7 @@ class Ctx:
     """A lazily-initialized connection to a Kubernetes cluster.
 
     Nothing is loaded until the first API call, so commands that only read
-    the kubeconfig (e.g. ``kq ctx ls``) never touch the network.
+    the kubeconfig (e.g. ``kube-query ctx ls``) never touch the network.
     """
 
     def __init__(self, context: str | None = None, kubeconfig: str | None = None) -> None:
@@ -74,7 +74,7 @@ class Ctx:
                 return
             raise KqError(
                 f"could not load kubeconfig: {e}\n"
-                "  Hint: set KUBECONFIG, or pass --kubeconfig / --context. See available contexts: kq ctx ls"
+                "  Hint: set KUBECONFIG, or pass --kubeconfig / --context. See available contexts: kube-query ctx ls"
             ) from None
         self._client = ApiClient()
 
@@ -118,7 +118,7 @@ class Ctx:
         return self._default_ns
 
     def contexts(self) -> list[dict]:
-        """Context rows for ``kq ctx ls`` (read from kubeconfig, no API calls)."""
+        """Context rows for ``kube-query ctx ls`` (read from kubeconfig, no API calls)."""
         try:
             contexts, current = k8s_config.list_kube_config_contexts(config_file=self.kubeconfig)
         except Exception:

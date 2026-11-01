@@ -57,7 +57,7 @@ the network.
 ```
                       ┌────────────────────────────────────────────────┐
                       │  CLI layer (click)                             │
-                      │  kq p l web -n prod -o rich                    │
+                      │  kube-query p l web -n prod -o rich                    │
                       └───────────────┬────────────────────────────────┘
                                       │  Settings → Eff (resolved ns/format/verbosity)
                                       ▼
@@ -98,7 +98,7 @@ the network.
 
 ### Request budget
 
-- `kq <group> ls`: 1 discovery pass (≈ 2 + #groups GETs, cached per process)
+- `kube-query <group> ls`: 1 discovery pass (≈ 2 + #groups GETs, cached per process)
   + 1 list call.
 - `desc`: get object + (pods, replicasets, jobs) in the namespace + events.
 - `overview`: nodes + pods + deployments + pvcs + events — each section
@@ -111,7 +111,7 @@ the network.
 Everything user-facing is a `KqError` (a `click.ClickException`): one
 actionable sentence + optional `Hint:` line, exit code 1. 404s include the
 command that would list candidates. Unknown resources include close-match
-suggestions. HTTP/transport failures suggest checking `kq ctx` and network.
+suggestions. HTTP/transport failures suggest checking `kube-query ctx` and network.
 
 ## The read-only guarantee
 

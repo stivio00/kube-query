@@ -54,7 +54,7 @@ def get_object(ctx: Ctx, entry: ApiResource, name: str, *, namespace: str | None
             alt = " (or -A for all namespaces)" if entry.namespaced else ""
             raise KqError(
                 f"{entry.kind} '{name}' not found{where}.\n"
-                f"  Hint: list candidates with 'kq get {entry.plural}{scope}'{alt}."
+                f"  Hint: list candidates with 'kube-query get {entry.plural}{scope}'{alt}."
             ) from None
         raise
 
