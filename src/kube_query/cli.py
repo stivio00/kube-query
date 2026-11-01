@@ -19,12 +19,14 @@ USAGE PATTERNS
   kube-query logs NAME [-c C]        pod logs     kube-query tree deploy/NAME
   kube-query get RESOURCE[/NAME]     any resource incl. CRDs ('api' lists all)
   kube-query helm ls -A / eso -A     helm releases / ExternalSecret status
+  kube-query argo -A                  Argo CD apps: health + sync
   tip: alias kq=kube-query for a short form
 
 \b
 OPTIONS
   -o yaml|json|rich|md|tree        output (default: compact yaml)
   -n NS | -A | -l SEL | -f REGEX   scope: namespace / all / labels / name
+  --show-labels                     add a LABELS column to listings
   -v (system metadata) -vv (raw)   verbosity
   --ctx NAME / --kubeconfig PATH   cluster selection
 

@@ -41,6 +41,9 @@ When the resource is unusual (CRD): `kube-query api` to discover, then `kube-que
 | `kube-query ev` (`events`, `e`) | events: `--type Warning --since 2h --for pod/NAME` |
 | `kube-query tree deploy/NAME` (`t`) | ownership tree with health per node |
 | `kube-query get RESOURCE[/NAME]` (`g`) | any resource incl. CRDs; `kube-query api` lists all types |
+| `kube-query crd ls` | CRDs installed in this cluster (group, kind, Established) |
+| `kube-query argo -A` (`argocd`) | Argo CD Applications: health + sync |
+| `kube-query svc desc NAME` | service ports + backing endpoints (ready/notReady IPs) |
 | `kube-query helm ls -A` (`h`) / `kube-query helm show NAME` | helm releases, chart + effective values |
 | `kube-query eso -A` / `--stores` | ExternalSecret / SecretStore sync status |
 | `kube-query ctx ls` (`c l`) | which cluster am I on? (kubeconfig contexts) |

@@ -4,6 +4,28 @@ All notable changes to kube-query are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versioning follows SemVer.
 
+## [0.2.0] — 2026-11-01
+
+### Added
+- **CRD-first listings.** Kinds without built-in table columns (any CRD) now
+  get a smart `STATUS` column derived from a Ready/Healthy/Succeeded/
+  Established/Available condition, Argo-style `status.health.status`, or
+  `status.phase`; fully-empty columns are omitted from tables.
+- **`kube-query crd` sugar group** (`crds`): `ls` shows every installed CRD
+  with GROUP, KIND, scope and the `Established` condition; `show`/`desc`
+  accept dotted CRD names.
+- **Argo CD support: `kube-query argo`** (`argocd`): Applications across the
+  cluster with PROJECT, HEALTH, SYNC, DESTINATION; regex filter; friendly
+  error when Argo CD isn't installed. Raw `get applications` gets the smart
+  STATUS column too.
+- **Service describe now includes backing endpoints** — ready/notReady IPs
+  and ports — the fastest answer to "is traffic reaching my pods?".
+- **`--show-labels`** on every listing (and `get`): appends a `k=v,...`
+  LABELS column in table formats.
+- Per-container ports (`80/http`) in pod describe summaries.
+- Quick examples in `--help` for all major commands; docs and SKILL.md
+  refreshed (Argo, CRD, endpoints, labels).
+
 ## [0.1.1] — 2026-11-01
 
 ### Changed

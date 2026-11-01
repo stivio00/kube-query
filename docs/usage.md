@@ -108,7 +108,7 @@ kube-query <group> logs NAME               pods only: container logs
 | `ev` | `events`, `event`, `e` | see §6 |
 
 `ls` flags (all groups): `-n NS`, `-A`, `-l LABEL_SELECTOR`, `--field-selector FS`,
-`-f/--filter REGEX`, positional `REGEX` (matches object names), `-o`, `-v`.
+`-f/--filter REGEX`, `--show-labels`, positional `REGEX` (matches object names), `-o`, `-v`.
 
 ```bash
 kube-query p l                          # pods in current namespace
@@ -143,10 +143,18 @@ kube-query get pod/web-5d9c6 -n prod        # RESOURCE/NAME form
 kube-query get deployments.apps -n prod     # group-qualified
 kube-query get apps/v1/deployments -n prod  # apiVersion-qualified
 kube-query get externalsecrets -A           # CRDs just work (discovery-driven)
-kube-query get crds                         # what CRDs exist?
+kube-query crd ls                           # CRDs installed in this cluster
+kube-query crd show externalsecrets.external-secrets.io
 kube-query api                              # all resource types incl. CRDs
 kube-query api external-secrets             # regex filter
 ```
+
+CRD-first rendering: kinds without built-in table columns get a smart
+**STATUS** column derived from a `Ready`/`Healthy`/`Succeeded`/`Established`/
+`Available` condition (or `status.phase`) — so `kube-query get widgets -o rich`
+is informative for any operator's CRDs. Columns that end up empty for every
+row are omitted. `kube-query crd ls` shows GROUP, KIND, scope and the
+`Established` condition per CRD.
 
 Name resolution accepts plurals, singulars, kinds and shortnames
 (case-insensitive): `deployments` = `deployment` = `Deployment` = `deploy`.
@@ -165,6 +173,13 @@ kube-query describe pod web-5d9c6 -n prod
 kube-query desc deploy/web -n prod
 ```
 
+### `kube-query describe` extras
+
+- **Services** get an `endpoints` section: ready / notReady backing IPs and
+  ports — the fastest answer to "is traffic actually reaching pods?".
+- **Pods** show per-container ports (`80/http`) in the summary.
+- Unknown/CRD kinds show their conditions in the summary.
+
 ### `kube-query tree` (alias `t`)
 
 Ownership chains with health per node:
@@ -177,7 +192,19 @@ kube-query tree deploy/web -o yaml          # nested structure as data
 kube-query p l -o tree                      # forest view of any list
 ```
 
-## 6. Events: `kube-query ev`
+## 6. Argo CD: `kube-query argo`
+
+Applications across the cluster with health + sync (read-only, via the
+`applications.argoproj.io` CRD; friendly error if Argo CD isn't installed):
+
+```bash
+kube-query argo -A                      # NAME NAMESPACE PROJECT HEALTH SYNC DESTINATION AGE
+kube-query argo -A -o rich
+kube-query argo '^payments' -n argocd
+kube-query get applications -A          # raw CRD objects (smart STATUS column)
+```
+
+## 7. Events: `kube-query ev`
 
 ```bash
 kube-query ev                               # current namespace, newest first, 50 max
@@ -189,7 +216,7 @@ kube-query ev --limit 200                   # more rows
 
 Compact event shape: `lastSeen, type, reason, object (Kind/name), namespace, count, source, message`.
 
-## 7. Helm (read-only): `kube-query helm`
+## 8. Helm (read-only): `kube-query helm`
 
 Helm 3 stores releases as Secrets (`sh.helm.release.v1.<name>.v<rev>`,
 label `owner=helm`). kube-query lists them without the helm binary and best-effort
@@ -204,7 +231,7 @@ kube-query helm show grafana -n monitoring -o json
 If a payload can't be decoded (very old/hand-modified releases), the release
 still lists with `chart: ?`.
 
-## 8. External Secrets Operator: `kube-query eso`
+## 9. External Secrets Operator: `kube-query eso`
 
 ```bash
 kube-query eso -A                    # ExternalSecrets: store, target, Ready, reason
@@ -213,7 +240,7 @@ kube-query eso --stores -A           # SecretStores + ClusterSecretStores
 
 Missing ESO CRDs produce a clear message instead of a stack trace.
 
-## 9. Output formats
+## 10. Output formats
 
 | `-o` | What you get | Best for |
 |---|---|---|
@@ -226,7 +253,7 @@ Missing ESO CRDs produce a clear message instead of a stack trace.
 `KQ_OUTPUT=rich` in your shell profile gives you tables by default while
 agents (no env) keep YAML.
 
-## 10. Safety model
+## 11. Safety model
 
 - kube-query contains **no code path** that issues POST/PUT/PATCH/DELETE — the HTTP
   layer only implements `GET`.

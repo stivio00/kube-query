@@ -61,7 +61,13 @@ def tabulate(entry: ApiResource, items: list[dict], *, include_ns: bool) -> tupl
     return headers, rows
 
 
-def render_list(settings: Settings, entry: ApiResource, items: list[dict], eff, *, namespace: str | None) -> None:
+def format_labels(labels: dict | None) -> str:
+    return ",".join(f"{k}={v}" for k, v in sorted((labels or {}).items()))
+
+
+def render_list(
+    settings: Settings, entry: ApiResource, items: list[dict], eff, *, namespace: str | None, show_labels: bool = False
+) -> None:
     """Render a list of objects in the requested format."""
     if eff.output in ("yaml", "json"):
         emit_data([compact(it, eff.verbose) for it in items], eff.output)
@@ -83,6 +89,11 @@ def render_list(settings: Settings, entry: ApiResource, items: list[dict], eff, 
         and (namespace is None or len({dig(o, "metadata", "namespace", default="") or "" for o in items}) > 1)
     )
     headers, rows = tabulate(entry, items, include_ns=include_ns)
+    if show_labels:
+        headers = [*headers, "LABELS"]
+        for r, it in zip(rows, items, strict=True):
+            r["LABELS"] = format_labels(dig(it, "metadata", "labels"))
+    headers, rows = drop_empty_columns(headers, rows)
     where = f" in namespace '{namespace}'" if namespace else " (all namespaces)"
     subtitle = f"{len(items)} {entry.plural}{where}"
 
@@ -91,6 +102,17 @@ def render_list(settings: Settings, entry: ApiResource, items: list[dict], eff, 
         return
 
     render_rows(headers, rows, eff.output, title=entry.kind, subtitle=subtitle)
+
+
+def drop_empty_columns(headers: list[str], rows: list[dict]) -> tuple[list[str], list[dict]]:
+    """Omit columns whose value is empty in every row (e.g. STATUS on kinds
+    that have no detectable status)."""
+    if not rows:
+        return headers, rows
+    keep = [h for h in headers if any(str(r.get(h, "")) != "" for r in rows)]
+    if not keep:
+        keep = headers[:1]
+    return keep, [{h: r.get(h, "") for h in keep} for r in rows]
 
 
 def render_single(

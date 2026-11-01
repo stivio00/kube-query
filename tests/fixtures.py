@@ -80,7 +80,12 @@ def build_objects() -> dict:
                     {"apiVersion": "apps/v1", "kind": "ReplicaSet", "name": "web-7f9c6", "uid": "uid-rs-web"}
                 ],
             },
-            "spec": {"nodeName": "node-1", "containers": [{"name": "app", "image": "nginx:1.27"}]},
+            "spec": {
+                "nodeName": "node-1",
+                "containers": [
+                    {"name": "app", "image": "nginx:1.27", "ports": [{"containerPort": 80, "name": "http"}]}
+                ],
+            },
             "status": {
                 "phase": "Running",
                 "podIP": "10.42.0.11",
@@ -480,6 +485,25 @@ def build_objects() -> dict:
         },
     ]
 
+    endpoints = [
+        {
+            "apiVersion": "v1",
+            "kind": "Endpoints",
+            "metadata": {
+                "name": "web",
+                "namespace": "default",
+                "uid": "uid-ep-web",
+                "creationTimestamp": "2026-10-31T09:58:00Z",
+            },
+            "subsets": [
+                {
+                    "addresses": [{"ip": "10.42.0.11"}, {"ip": "10.42.0.12"}],
+                    "notReadyAddresses": [{"ip": "10.42.0.13"}],
+                    "ports": [{"port": 80, "name": "http", "protocol": "TCP"}],
+                }
+            ],
+        },
+    ]
     externalsecrets = [
         {
             "apiVersion": "external-secrets.io/v1beta1",
@@ -528,6 +552,38 @@ def build_objects() -> dict:
         },
     ]
 
+    applications = [
+        {
+            "apiVersion": "argoproj.io/v1",
+            "kind": "Application",
+            "metadata": {
+                "name": "guestbook",
+                "namespace": "argocd",
+                "uid": "uid-app-guestbook",
+                "creationTimestamp": "2026-10-05T00:00:00Z",
+            },
+            "spec": {"project": "default", "destination": {"name": "in-cluster", "namespace": "prod"}},
+            "status": {"health": {"status": "Healthy"}, "sync": {"status": "Synced", "revision": "abc123"}},
+        },
+        {
+            "apiVersion": "argoproj.io/v1",
+            "kind": "Application",
+            "metadata": {
+                "name": "payments-api",
+                "namespace": "argocd",
+                "uid": "uid-app-payments",
+                "creationTimestamp": now_minus(hours=6),
+            },
+            "spec": {
+                "project": "platform",
+                "destination": {"server": "https://kubernetes.default.svc", "namespace": "default"},
+            },
+            "status": {
+                "health": {"status": "Degraded", "message": "Health Degraded: pods not healthy"},
+                "sync": {"status": "OutOfSync", "revision": "def456"},
+            },
+        },
+    ]
     secretstores = [
         {
             "apiVersion": "external-secrets.io/v1beta1",
@@ -543,6 +599,36 @@ def build_objects() -> dict:
         },
     ]
 
+    crds = [
+        {
+            "apiVersion": "apiextensions.k8s.io/v1",
+            "kind": "CustomResourceDefinition",
+            "metadata": {
+                "name": "externalsecrets.external-secrets.io",
+                "uid": "uid-crd-es",
+                "creationTimestamp": "2026-10-10T00:00:00Z",
+            },
+            "spec": {
+                "group": "external-secrets.io",
+                "scope": "Namespaced",
+                "names": {"kind": "ExternalSecret", "plural": "externalsecrets"},
+            },
+            "status": {
+                "conditions": [{"type": "Established", "status": "True"}, {"type": "NamesAccepted", "status": "True"}]
+            },
+        },
+        {
+            "apiVersion": "apiextensions.k8s.io/v1",
+            "kind": "CustomResourceDefinition",
+            "metadata": {
+                "name": "widgets.example.com",
+                "uid": "uid-crd-widgets",
+                "creationTimestamp": now_minus(minutes=10),
+            },
+            "spec": {"group": "example.com", "scope": "Namespaced", "names": {"kind": "Widget", "plural": "widgets"}},
+            "status": {"conditions": [{"type": "NamesAccepted", "status": "True"}]},
+        },
+    ]
     clustersecretstores = [
         {
             "apiVersion": "external-secrets.io/v1beta1",
@@ -566,6 +652,9 @@ def build_objects() -> dict:
         "externalsecrets": externalsecrets,
         "secretstores": secretstores,
         "clustersecretstores": clustersecretstores,
+        "customresourcedefinitions": crds,
+        "endpoints": endpoints,
+        "applications": applications,
     }
 
 
@@ -589,6 +678,7 @@ def build_discovery() -> dict:
             res("secrets", "Secret", True, "secret"),
             res("configmaps", "ConfigMap", True, "configmap", ["cm"]),
             res("events", "Event", True, "event", ["ev"]),
+            res("endpoints", "Endpoints", True, "endpoints"),
             res("services", "Service", True, "service", ["svc"]),
             res("persistentvolumeclaims", "PersistentVolumeClaim", True, "persistentvolumeclaim", ["pvc"]),
         ],
@@ -601,6 +691,24 @@ def build_discovery() -> dict:
             res("replicasets", "ReplicaSet", True, "replicaset", ["rs"]),
             res("statefulsets", "StatefulSet", True, "statefulset", ["sts"]),
             res("daemonsets", "DaemonSet", True, "daemonset", ["ds"]),
+        ],
+    }
+    argo_v1 = {
+        "kind": "APIResourceList",
+        "groupVersion": "argoproj.io/v1",
+        "resources": [res("applications", "Application", True, "application")],
+    }
+    apiext_v1 = {
+        "kind": "APIResourceList",
+        "groupVersion": "apiextensions.k8s.io/v1",
+        "resources": [
+            res(
+                "customresourcedefinitions",
+                "CustomResourceDefinition",
+                False,
+                "customresourcedefinition",
+                ["crd", "crds"],
+            ),
         ],
     }
     eso_v1beta1 = {
@@ -628,9 +736,21 @@ def build_discovery() -> dict:
                     "versions": [{"groupVersion": "external-secrets.io/v1beta1"}],
                     "preferredVersion": {"groupVersion": "external-secrets.io/v1beta1"},
                 },
+                {
+                    "name": "argoproj.io",
+                    "versions": [{"groupVersion": "argoproj.io/v1"}],
+                    "preferredVersion": {"groupVersion": "argoproj.io/v1"},
+                },
+                {
+                    "name": "apiextensions.k8s.io",
+                    "versions": [{"groupVersion": "apiextensions.k8s.io/v1"}],
+                    "preferredVersion": {"groupVersion": "apiextensions.k8s.io/v1"},
+                },
             ],
         },
         "/apis/apps/v1": apps_v1,
+        "/apis/apiextensions.k8s.io/v1": apiext_v1,
+        "/apis/argoproj.io/v1": argo_v1,
         "/apis/external-secrets.io/v1beta1": eso_v1beta1,
         "/version": {"major": "1", "minor": "31", "gitVersion": "v1.31.1", "platform": "linux/arm64"},
     }

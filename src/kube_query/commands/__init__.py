@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 from .api_resources import api
+from .argo_cmd import argo
 from .contexts import make_contexts_group
 from .describe import describe
 from .eso_cmd import eso
 from .events_cmd import ev
 from .get import get
-from .groups import CONFIGMAPS, DEPLOYMENTS, NAMESPACES, NODES, PODS, SECRETS, SERVICES
+from .groups import CONFIGMAPS, CRDS, DEPLOYMENTS, NAMESPACES, NODES, PODS, SECRETS, SERVICES
 from .helm_cmd import make_helm_group
 from .logs import logs
 from .overview import overview
@@ -56,6 +57,9 @@ def register(main) -> None:
     main.add_command(NODES, "nodes", alias=True)
     main.add_command(NODES, "no", alias=True)
 
+    main.add_command(CRDS, "crd")
+    main.add_command(CRDS, "crds", alias=True)
+
     main.add_command(ev, "ev")
     main.add_command(ev, "events", alias=True)
     main.add_command(ev, "event", alias=True)
@@ -69,6 +73,9 @@ def register(main) -> None:
 
     main.add_command(eso, "eso")
     main.add_command(eso, "externalsecrets", alias=True)
+
+    main.add_command(argo, "argo")
+    main.add_command(argo, "argocd", alias=True)
 
     main.add_command(make_contexts_group(), "ctx")
     main.add_command(make_contexts_group(), "contexts", alias=True)

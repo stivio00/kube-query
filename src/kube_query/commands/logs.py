@@ -23,7 +23,14 @@ from ..summarize import dig, parse_since
 @click.option("-n", "--ns", "--namespace", "namespace", default=None, help="Namespace.")
 @click.pass_obj
 def logs(settings, name, container, tail, since, previous, timestamps, all_containers, namespace):
-    """Pod logs (plain text): kube-query logs POD [-c CONTAINER] [--tail N] [--previous]"""
+    """Pod logs (plain text): kube-query logs POD [-c CONTAINER] [--tail N] [--previous]
+
+    \b
+    Examples:
+      kube-query logs web-5d9c6 -n prod --tail 50
+      kube-query logs web-5d9c6 -c app --previous
+      kube-query logs web-5d9c6 --since 30m
+    """
     client = settings.client
     eff_ns = namespace or settings.namespace
     ns = eff_ns or client.default_namespace()

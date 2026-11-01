@@ -30,7 +30,16 @@ def make_helm_group() -> ResourceGroup:
     @list_options()
     @click.pass_obj
     def ls(
-        settings, pattern, name_filter, all_namespaces, label_selector, field_selector, namespace, verbose, output_fmt
+        settings,
+        pattern,
+        name_filter,
+        all_namespaces,
+        label_selector,
+        field_selector,
+        show_labels,
+        namespace,
+        verbose,
+        output_fmt,
     ):
         """List Helm releases (latest revision per release)."""
         eff = settings.effect(namespace=namespace, output=output_fmt, verbose=verbose, all_namespaces=all_namespaces)
@@ -90,7 +99,14 @@ def make_helm_group() -> ResourceGroup:
     @group_options
     @click.pass_context
     def grp(ctx, namespace, output_fmt, verbose, all_namespaces):
-        """Helm releases, decoded read-only from release Secrets: ls -A | show NAME"""
+        """Helm releases, decoded read-only from release Secrets: ls -A | show NAME
+
+        \b
+        Examples:
+          kube-query helm ls -A
+          kube-query helm show grafana -n monitoring
+          kube-query helm wordpress -n monitoring    # implicit show
+        """
         settings = ctx.obj
         merge_group_options(
             settings,

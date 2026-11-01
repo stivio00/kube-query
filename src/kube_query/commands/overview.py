@@ -164,7 +164,14 @@ def build_overview(settings, *, namespace: str | None, since: str) -> dict:
 @output_option
 @click.pass_obj
 def overview(settings, since, all_namespaces, namespace, verbose, output_fmt):
-    """Cluster snapshot: problem pods, nodes, deployments, PVCs, warnings."""
+    """Cluster snapshot: problem pods, nodes, deployments, PVCs, warnings. Start here.
+
+    \b
+    Examples:
+      kube-query overview
+      kube-query overview -o rich
+      kube-query overview -n prod --since 4h -o md
+    """
     eff = settings.effect(namespace=namespace, output=output_fmt, verbose=verbose, all_namespaces=all_namespaces)
     # overview defaults to all namespaces unless -n is given
     ns = eff.namespace

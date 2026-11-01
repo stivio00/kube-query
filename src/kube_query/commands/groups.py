@@ -37,7 +37,16 @@ def make_resource_group(
     @list_options()
     @click.pass_obj
     def ls(
-        settings, pattern, name_filter, all_namespaces, label_selector, field_selector, namespace, verbose, output_fmt
+        settings,
+        pattern,
+        name_filter,
+        all_namespaces,
+        label_selector,
+        field_selector,
+        show_labels,
+        namespace,
+        verbose,
+        output_fmt,
     ):
         eff = settings.effect(namespace=namespace, output=output_fmt, verbose=verbose, all_namespaces=all_namespaces)
         entry = resolve(settings.client, plural)
@@ -50,7 +59,7 @@ def make_resource_group(
             pattern=pattern,
             name_filter=name_filter,
         )
-        render_list(settings, entry, items, eff, namespace=ns)
+        render_list(settings, entry, items, eff, namespace=ns, show_labels=show_labels)
 
     ls.help = f"List {plural}. [PATTERN] is a regex on the name."
 
@@ -163,4 +172,9 @@ NODES = make_resource_group(
     name="node",
     plural="nodes",
     group_help="Nodes: ls | NAME | tree node/NAME.",
+)
+CRDS = make_resource_group(
+    name="crd",
+    plural="customresourcedefinitions",
+    group_help="CRDs installed in this cluster: ls | NAME | desc NAME.",
 )

@@ -67,6 +67,7 @@ pods, a stuck deployment, helm releases and ESO resources to poke at.
 | `kube-query pod` (`pods`, `p`, `po`) | `l [REGEX] [-A\|-n\|-l\|--field-selector]` · `NAME` · `desc NAME` · `logs NAME` |
 | `kube-query deploy` (`deployments`, `dep`, `d`) | same shape for deployments |
 | `kube-query ns` (`n`) · `kube-query node` (`no`) · `kube-query svc` · `kube-query cm` | namespaces, nodes, services, configmaps |
+| `kube-query crd` (`crds`) | CRDs installed in the cluster (group, kind, Established) |
 | `kube-query secret` (`sec`) | values hidden; `kube-query sec NAME --reveal` decodes (explicit opt-in) |
 | `kube-query ev` (`events`, `e`) | events, newest first: `--type Warning --since 2h --for pod/NAME` |
 | `kube-query get RESOURCE[/NAME]` (`g`) | any resource incl. CRDs; `kube-query api` lists all types |
@@ -74,6 +75,7 @@ pods, a stuck deployment, helm releases and ESO resources to poke at.
 | `kube-query tree RESOURCE/NAME` (`t`) | ownership tree (`deploy/web`, `cronjob/x`, `node/y`) |
 | `kube-query helm` (`h`) | releases read-only from Helm's release Secrets; `show NAME` adds values |
 | `kube-query eso` | ExternalSecret sync status (`--stores` for SecretStores) |
+| `kube-query argo` (`argocd`) | Argo CD Applications: health + sync |
 | `kube-query ctx` (`c`) | kubeconfig contexts (`kube-query c l`), no API calls |
 | `kube-query ver` | client + server version (which cluster am I on?) |
 

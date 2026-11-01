@@ -210,6 +210,13 @@ $ kube-query eso -A                         # ExternalSecrets failing to sync?
   NAME         NAMESPACE   STORE            TARGET           READY   REASON
   my-secret    default     SecretStore/vault target-secret    True    SecretSynced
   broken-es    default     SecretStore/vault broken-target    False   StoreError
+
+$ kube-query crd ls                         # what operators live here?
+  NAME                              GROUP                 KIND              NAMESPACED   ESTABLISHED
+  externalsecrets.external-secrets.io   external-secrets.io   ExternalSecret   namespaced   True
+  widgets.example.com               example.com           Widget            namespaced
+
+$ kube-query get widgets -A -o rich         # unknown CRDs still get a STATUS column
 ```
 
 ## Takeaways

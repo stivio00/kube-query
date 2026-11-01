@@ -20,7 +20,14 @@ STORE_COLUMNS = ["NAME", "KIND", "NAMESPACE", "PROVIDER", "READY", "REASON", "AG
 @output_option
 @click.pass_obj
 def eso(settings, stores, all_namespaces, namespace, verbose, output_fmt):
-    """External Secrets Operator status: ExternalSecrets (--stores for SecretStores)"""
+    """External Secrets Operator status: ExternalSecrets (--stores for SecretStores)
+
+    \b
+    Examples:
+      kube-query eso -A
+      kube-query eso --stores -A
+      kube-query eso -n prod -o rich
+    """
     eff = settings.effect(namespace=namespace, output=output_fmt, verbose=verbose, all_namespaces=all_namespaces)
     ns = eff.namespace if eff.namespace else (None if eff.all_namespaces else settings.client.default_namespace())
     rows = store_rows(settings.client, namespace=ns) if stores else eso_rows(settings.client, namespace=ns)

@@ -118,6 +118,16 @@ def filter_option(fn):
     )(fn)
 
 
+def show_labels_option(fn):
+    return click.option(
+        "--show-labels",
+        "show_labels",
+        is_flag=True,
+        default=False,
+        help="Add a LABELS column to listings.",
+    )(fn)
+
+
 def list_options(include_pattern: bool = True):
     """Options for `ls`-style commands (order matters for help output)."""
 
@@ -127,6 +137,7 @@ def list_options(include_pattern: bool = True):
         fn = filter_option(fn)
         fn = all_namespaces_option(fn)
         fn = selector_options(fn)
+        fn = show_labels_option(fn)
         fn = namespace_option(fn)
         fn = verbose_option(fn)
         return output_option(fn)

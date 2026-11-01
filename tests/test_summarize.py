@@ -117,3 +117,35 @@ def test_parse_since():
     assert parse_since("45") == timedelta(seconds=45)
     with pytest.raises(KqError):
         parse_since("nope")
+
+
+# -- CRD / unknown-kind status -------------------------------------------------
+
+
+def test_generic_status_conditions_and_phase():
+    from kube_query.summarize import generic_status
+
+    ready = {"status": {"conditions": [{"type": "Other", "status": "True"}, {"type": "Ready", "status": "False"}]}}
+    assert generic_status(ready) == "False"  # Ready wins over condition order
+    established = {"status": {"conditions": [{"type": "Established", "status": "True"}]}}
+    assert generic_status(established) == "True"
+    only_other = {"status": {"conditions": [{"type": "Pending", "status": "True"}]}}
+    assert generic_status(only_other) == "Pending=True"
+    phase = {"status": {"phase": "Running"}}
+    assert generic_status(phase) == "Running"
+    assert generic_status({"spec": {}}) == ""
+
+
+def test_drop_empty_columns():
+    from kube_query.commands._impl import drop_empty_columns
+
+    headers, _rows = drop_empty_columns(
+        ["NAME", "STATUS", "AGE"],
+        [{"NAME": "a", "STATUS": "", "AGE": "1d"}, {"NAME": "b", "STATUS": "", "AGE": "2d"}],
+    )
+    assert headers == ["NAME", "AGE"]
+    headers, _rows = drop_empty_columns(
+        ["NAME", "STATUS"],
+        [{"NAME": "a", "STATUS": "True"}],
+    )
+    assert headers == ["NAME", "STATUS"]

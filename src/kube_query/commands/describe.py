@@ -10,6 +10,7 @@ from ..cleanup import compact
 from ..cli_kit import show_options
 from ..config import Settings
 from ..discovery import parse_target, resolve
+from ..errors import KqError
 from ..events import related_events
 from ..output import as_yaml, console, emit_data, md_code, md_heading, md_table, rich_table
 from ..summarize import (
@@ -63,6 +64,37 @@ def _child_table_rows(children: list[dict]) -> list[dict]:
     return [{h: c.get(_CHILD_KEY_MAP[h], "") for h in _CHILD_HEADERS} for c in children]
 
 
+def _service_endpoints(client, ns: str, name: str) -> dict | None:
+    """Ready/notReady endpoint addresses + ports backing a Service."""
+    from ..access import get_object
+    from ..discovery import resolve
+
+    try:
+        entry = resolve(client, "endpoints")
+        ep = get_object(client, entry, name, namespace=ns)
+    except KqError:
+        return None
+    ready, not_ready, ports = [], [], []
+    for subset in ep.get("subsets") or []:
+        for a in subset.get("addresses") or []:
+            if a.get("ip"):
+                ready.append(a["ip"])
+        for a in subset.get("notReadyAddresses") or []:
+            if a.get("ip"):
+                not_ready.append(a["ip"])
+        for prt in subset.get("ports") or []:
+            label = str(prt.get("port") or "")
+            if prt.get("name"):
+                label += f"/{prt['name']}"
+            ports.append(label)
+    out: dict = {"ready": ready}
+    if not_ready:
+        out["notReady"] = not_ready
+    if ports:
+        out["ports"] = ports
+    return out if (ready or not_ready or ports) else {"ready": []}
+
+
 def describe_impl(settings: Settings, entry, name: str, eff, *, namespace: str | None = None):
     client = settings.client
     from ..access import get_object
@@ -82,7 +114,12 @@ def describe_impl(settings: Settings, entry, name: str, eff, *, namespace: str |
         children.sort(key=lambda r: (r["kind"], r["name"]))
     events = related_events(client, obj)[:20]
 
-    doc = {"summary": summary, "object": compact(obj, eff.verbose)}
+    doc: dict = {"summary": summary}
+    if entry.namespaced and entry.kind.lower() == "service":
+        endpoints = _service_endpoints(client, ns or "", name)
+        if endpoints is not None:
+            doc["endpoints"] = endpoints
+    doc["object"] = compact(obj, eff.verbose)
     if children:
         doc["children"] = children
     if events:
@@ -159,7 +196,14 @@ def _kv_rows(d: dict) -> list[dict]:
 @show_options()
 @click.pass_obj
 def describe(settings, resource, name, namespace, verbose, output_fmt):
-    """Diagnose one object: summary + status + children + events."""
+    """Diagnose one object: summary + status + children + events.
+
+    \b
+    Examples:
+      kube-query p desc web-5d9c6 -n prod
+      kube-query desc deploy/web -n prod
+      kube-query svc desc web            # includes backing endpoints
+    """
     eff = settings.effect(namespace=namespace, output=output_fmt, verbose=verbose)
     api_version, res_name, obj_name = parse_target(resource, name)
     if not obj_name:

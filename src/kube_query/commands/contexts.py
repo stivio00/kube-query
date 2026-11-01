@@ -21,7 +21,17 @@ def make_contexts_group() -> ResourceGroup:
     @click.command("ls")
     @list_options(include_pattern=False)
     @click.pass_obj
-    def ls(settings, name_filter, all_namespaces, label_selector, field_selector, namespace, verbose, output_fmt):
+    def ls(
+        settings,
+        name_filter,
+        all_namespaces,
+        label_selector,
+        field_selector,
+        show_labels,
+        namespace,
+        verbose,
+        output_fmt,
+    ):
         """List kubeconfig contexts (the current one is marked). Use -f to filter by regex."""
         eff = settings.effect(namespace=namespace, output=output_fmt, verbose=verbose)
         rows = settings.client.contexts()
@@ -75,7 +85,14 @@ def make_contexts_group() -> ResourceGroup:
     @group_options
     @click.pass_context
     def grp(ctx, namespace, output_fmt, verbose, all_namespaces):
-        """Kubeconfig contexts: ls | show NAME (no API calls)"""
+        """Kubeconfig contexts: ls | show NAME (no API calls)
+
+        \b
+        Examples:
+          kube-query ctx ls
+          kube-query c l
+          kube-query --ctx <name> p l
+        """
         settings = ctx.obj
         merge_group_options(
             settings,

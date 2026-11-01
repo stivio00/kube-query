@@ -367,6 +367,71 @@ def test_get_crd_resource(run):
     assert doc[0]["kind"] == "ExternalSecret"
 
 
+def test_crd_listings_get_smart_status_columns(out):
+    """Unknown/CRD kinds get a STATUS column from Ready-ish conditions."""
+    text = out("get", "externalsecrets", "-A", "-o", "rich")
+    assert "STATUS" in text and "True" in text and "False" in text
+
+
+def test_show_labels_column(out, run):
+    text = out("p", "l", "--show-labels", "-o", "rich")
+    assert "LABELS" in text and "app=web" in text
+    # works via generic get too; json/yaml always keep labels in metadata
+    doc = json.loads(run("get", "pods", "--show-labels", "-o", "json").output)
+    assert doc[0]["metadata"]["labels"] == {"app": "web"}
+
+
+def test_argo_applications(run, out):
+    doc = json.loads(run("argo", "-A", "-o", "json").output)
+    by_name = {r["name"]: r for r in doc}
+    assert by_name["guestbook"]["health"] == "Healthy"
+    assert by_name["guestbook"]["sync"] == "Synced"
+    assert by_name["payments-api"]["health"] == "Degraded"
+    assert by_name["payments-api"]["message"]
+    assert by_name["payments-api"]["healthy"] is False
+
+    text = out("argo", "-A", "-o", "rich")
+    assert "HEALTH" in text and "Degraded" in text and "OutOfSync" in text
+
+    # pattern filter + generic get gets smart STATUS via status.health.status
+    doc = json.loads(run("argo", "guestbook", "-A", "-o", "json").output)
+    assert len(doc) == 1
+    text = out("get", "applications", "-A", "-o", "rich")
+    assert "Healthy" in text and "Degraded" in text
+
+
+def test_svc_describe_includes_endpoints(run):
+    doc = parse_yaml(run("svc", "desc", "web").output)
+    eps = doc["endpoints"]
+    assert "10.42.0.11" in eps["ready"] and "10.42.0.12" in eps["ready"]
+    assert eps["notReady"] == ["10.42.0.13"]
+    assert "80/http" in eps["ports"]
+
+
+def test_pod_describe_container_ports(run):
+    doc = parse_yaml(run("p", "desc", "web-7f9c6-a").output)
+    assert doc["summary"]["containers"][0]["ports"] == ["80/http"]
+
+
+def test_crd_sugar_group(run, out):
+    doc = json.loads(run("crd", "ls", "-o", "json").output)
+    names = {c["metadata"]["name"] for c in doc}
+    assert "externalsecrets.external-secrets.io" in names
+    assert "widgets.example.com" in names
+
+    text = out("crds", "l", "-o", "rich")
+    assert "GROUP" in text and "ESTABLISHED" in text
+    assert "external-secrets.io" in text and "True" in text
+
+    doc = parse_yaml(run("crd", "show", "externalsecrets.external-secrets.io").output)
+    assert doc["kind"] == "CustomResourceDefinition"
+    assert doc["spec"]["group"] == "external-secrets.io"
+
+    # implicit-name dispatch also works on dotted CRD names
+    doc = parse_yaml(run("crd", "widgets.example.com").output)
+    assert doc["metadata"]["name"] == "widgets.example.com"
+
+
 def test_get_single_object(run):
     doc = parse_yaml(run("get", "deploy/web").output)
     assert doc["kind"] == "Deployment" and doc["metadata"]["name"] == "web"

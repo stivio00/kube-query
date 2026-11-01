@@ -30,9 +30,18 @@ PLURAL_KINDS = {
     "externalsecrets": ("ExternalSecret", True),
     "secretstores": ("SecretStore", True),
     "clustersecretstores": ("ClusterSecretStore", False),
+    "customresourcedefinitions": ("CustomResourceDefinition", False),
+    "endpoints": ("Endpoints", True),
+    "applications": ("Application", True),
 }
 # bases where each plural is served
-BASES = ["/api/v1", "/apis/apps/v1", "/apis/external-secrets.io/v1beta1"]
+BASES = [
+    "/api/v1",
+    "/apis/apps/v1",
+    "/apis/external-secrets.io/v1beta1",
+    "/apis/apiextensions.k8s.io/v1",
+    "/apis/argoproj.io/v1",
+]
 
 
 def lookup(obj, dotted: str):

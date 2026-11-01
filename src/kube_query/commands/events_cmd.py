@@ -22,7 +22,14 @@ from ..output import console, emit_data, note, render_rows
 @output_option
 @click.pass_obj
 def ev(settings, pattern, types, since, limit, for_obj, all_namespaces, name_filter, namespace, verbose, output_fmt):
-    """Events, newest first: kube-query ev [REGEX] [--type Warning] [--since 2h] [--for pod/NAME]"""
+    """Events, newest first: kube-query ev [REGEX] [--type Warning] [--since 2h] [--for pod/NAME]
+
+    \b
+    Examples:
+      kube-query ev -A --type Warning --since 1h
+      kube-query ev --for pod/web-5d9c6 -n prod
+      kube-query ev BackOff -A --limit 100
+    """
     eff = settings.effect(namespace=namespace, output=output_fmt, verbose=verbose, all_namespaces=all_namespaces)
     involved = None
     if for_obj:

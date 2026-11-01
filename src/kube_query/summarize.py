@@ -93,6 +93,10 @@ def container_rows(pod: dict) -> list[dict]:
                 "restarts": int(st.get("restartCount") or 0),
                 "state": state,
                 "reason": reason,
+                "ports": [
+                    f"{p.get('containerPort')}" + (f"/{p['name']}" if p.get("name") else "")
+                    for p in c.get("ports") or []
+                ],
             }
             last = _last_termination_reason(st)
             if last:
@@ -318,7 +322,50 @@ COLUMNS: dict[str, list] = {
     ],
 }
 
-GENERIC_COLUMNS = [("NAME", _name), ("AGE", _age)]
+# Condition types that read as "the object's overall status" (CRD-friendly).
+_STATUS_CONDITIONS = ("Ready", "Healthy", "Succeeded", "Established", "Available")
+
+
+def generic_status(obj: dict) -> str:
+    """Best-effort status for unknown/CRD kinds: a Ready-ish condition,
+    Argo-style ``status.health.status``, ``status.phase``/``status.state``."""
+    conds = dig(obj, "status", "conditions", default=[]) or []
+    if conds:
+        by_type = {c.get("type"): c for c in conds}
+        for t in _STATUS_CONDITIONS:
+            c = by_type.get(t)
+            if c:
+                return str(c.get("status") or "")
+        first = conds[0]
+        return f"{first.get('type')}={first.get('status')}"
+    health = dig(obj, "status", "health", "status")  # Argo CD applications
+    if isinstance(health, str) and health:
+        return health
+    for key in ("phase", "state"):
+        v = dig(obj, "status", key)
+        if isinstance(v, str) and v:
+            return v
+    return ""
+
+
+GENERIC_COLUMNS = [("NAME", _name), ("STATUS", generic_status), ("AGE", _age)]
+
+
+def _crd_established(o: dict) -> str:
+    for c in dig(o, "status", "conditions", default=[]) or []:
+        if c.get("type") == "Established":
+            return str(c.get("status") or "")
+    return ""
+
+
+COLUMNS["customresourcedefinition"] = [
+    ("NAME", _name),
+    ("GROUP", lambda o: dig(o, "spec", "group") or ""),
+    ("KIND", lambda o: dig(o, "spec", "names", "kind") or ""),
+    ("NAMESPACED", lambda o: "namespaced" if dig(o, "spec", "scope") == "Namespaced" else "cluster"),
+    ("ESTABLISHED", _crd_established),
+    ("AGE", _age),
+]
 
 
 def columns_for(kind: str) -> list:
@@ -382,6 +429,8 @@ def summary_for(entry, obj: dict) -> dict:
 
 def _container_summary(r: dict) -> dict:
     out = {k: r[k] for k in ("name", "image", "ready", "restarts", "state") if r.get(k) is not None}
+    if r.get("ports"):
+        out["ports"] = r["ports"]
     if r.get("reason"):
         out["reason"] = r["reason"]
     if r.get("lastReason"):

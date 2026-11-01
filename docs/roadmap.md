@@ -1,6 +1,16 @@
 # Roadmap / TODO
 
-## Now (v0.1) — shipped
+## v0.2.0 — shipped
+
+- [x] CRD-first listings: smart STATUS column (Ready-ish conditions, Argo
+      health, status.phase), empty columns omitted
+- [x] `crd ls | show | desc` sugar group with GROUP/KIND/ESTABLISHED columns
+- [x] Argo CD: `argo` command (Applications health + sync)
+- [x] Service describe includes backing endpoints (ready/notReady IPs)
+- [x] `--show-labels` LABELS column on every listing
+- [x] Per-container ports in pod summaries; quick examples in `--help`
+
+## v0.1.x — shipped
 
 - [x] Read-only core: discovery-driven get/list for built-ins + CRDs
 - [x] Compact YAML default; json / rich / md / tree formats; -v/-vv verbosity
