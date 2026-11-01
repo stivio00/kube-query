@@ -1,13 +1,20 @@
-# kube-query
+<p align="center">
+  <img src="docs/img/logo.png" width="360" alt="kube-query logo">
+</p>
 
-**`kube-query` — read-only Kubernetes queries for humans and AI agents.**
+<h1 align="center">kube-query</h1>
+
+<p align="center"><b>Read-only Kubernetes queries for humans and AI agents.</b><br>
+kubectl for diagnosis — without the ability to break anything.</p>
+
+---
 
 kubectl is a loaded gun in an agent's hands. kube-query is the safe scope:
 it **captures cluster state and diagnoses problems**, and *cannot* create,
 update or delete anything — the HTTP layer implements `GET` and nothing else.
 Compact YAML by default, with rich tables, markdown, JSON and ownership
-trees on request. Built-ins, shortnames, CRDs, Helm releases and External
-Secrets Operator — one small, fast binary-ish CLI.
+trees on request. Built-ins, shortnames, CRDs, Argo CD, Helm releases and
+External Secrets Operator — one small, fast CLI.
 
 ```
 kube-query p l -A                    # all pods, all namespaces
@@ -19,6 +26,30 @@ kube-query overview                  # whole-cluster snapshot, problems first
 
 > kube-query is the **diagnosis** half of the loop. The **fix** half belongs to other
 > tools (kubectl apply, gitops, helm) — by design.
+
+## Screenshots
+
+<p align="center">
+  <img src="docs/img/screenshot-help.png" width="420" alt="kube-query --help">
+</p>
+<sub>Everything an agent needs to discover in one screen: usage patterns, options, the read-only contract.</sub>
+
+**`kube-query overview -o rich`** — cluster snapshot, problems first:
+![cluster overview](docs/img/overview.svg)
+
+**`kube-query p desc web-7f9c6-b`** — one pod: summary, restarts, reasons, related events:
+![pod describe](docs/img/describe.svg)
+
+**`kube-query tree deploy/web`** — ownership chain with health per node:
+![ownership tree](docs/img/tree.svg)
+
+**`kube-query argo -A`** — Argo CD applications, health + sync:
+![argo applications](docs/img/argo.svg)
+
+**`kube-query p l -A --show-labels`** — labels as a column:
+![pods with labels](docs/img/pods.svg)
+
+<sub>Screenshots are generated from the fake demo cluster (`make screenshots`) — no real cluster data.</sub>
 
 ## Why
 
@@ -123,6 +154,7 @@ system-prompt line:
 make setup          # venv + deps
 make check          # the full gate: ruff lint + format check + pytest + build
 make demo           # fake-cluster playground
+make screenshots    # regenerate docs/img/*.svg for the README
 make tag            # run the gate, then create v<version> tag
 git push origin vX.Y.Z   # CI publishes to PyPI (trusted publishing)
 ```

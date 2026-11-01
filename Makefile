@@ -56,6 +56,9 @@ check: lint format-check test check-dist ## Full gate: lint + format + tests + b
 demo: ## Play with kube-query against a fake cluster (no kubeconfig needed)
 	$(PYTHON) scripts/demo.py
 
+screenshots: ## Regenerate docs/img/*.svg from the fake cluster
+	$(PYTHON) scripts/screenshots.py
+
 clean-dist: ## Remove dist/ and build artifacts
 	rm -rf dist build src/*.egg-info
 
